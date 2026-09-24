@@ -1,0 +1,4638 @@
+@font-face {
+  font-family: "Inter Variable";
+  src:
+    url("fonts/InterVariable.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* More Typefaces teaser tiles only -- one representative weight per
+   typeface, same files the homepage's own catalogue tiles use. */
+@font-face {
+  font-family: "MS Relay Sans";
+  src: url("../fonts/catalogue/MSRelaySans-Semibold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "MS Circa Sans";
+  src: url("../fonts/catalogue/MSCircaSans-Semibold.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "MS Cikk Cakk";
+  src: url("../fonts/catalogue/MS_Cikk_Cakk.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+@font-face {
+  font-family: "MS Goufi";
+  src: url("../fonts/catalogue/MSGoufi-Black.ttf") format("truetype");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: swap;
+}
+
+/* Formae Regular is the only Formae weight on the page (the other weights
+   were dropped); the latest export lives in formae/fonts/. */
+@font-face {
+  font-family: "Formae";
+  src: url("fonts/Formae-Regular.woff2?v=25") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* Drop the Formae Old English webfont file into formae/fonts/ as
+   Formae-OldEnglish.woff2 once it's exported — this face is ready to
+   receive it and will fall back to regular Formae until then. */
+@font-face {
+  font-family: "Formae Old English";
+  src: url("fonts/Formae-OldEnglish.woff2") format("woff2");
+  font-style: normal;
+  font-weight: 400;
+  font-display: swap;
+}
+
+/* The © in the footer wordmark is MS Relay Sans's own copyright glyph.
+   Relay ships as ten static weights, so this is a tiny variable font
+   built from them (just the © and a space, weight axis 100-900): that
+   way the © follows the pointer-driven weight axis like the Inter
+   letters next to it. fonts/build-relay-copyright.py rebuilds it if the
+   Relay © is ever redrawn. */
+@font-face {
+  font-family: "Relay Copyright";
+  src: url("fonts/RelayCopyright-Variable.woff2") format("woff2-variations");
+  font-style: normal;
+  font-weight: 100 900;
+  font-display: block;
+}
+
+
+/* ========================================
+   RESET
+======================================== */
+
+* {
+  box-sizing: border-box;
+}
+
+/* Main sections set their own display (grid/flex), which would otherwise
+   beat the UA [hidden] rule on specificity -- force it here instead. */
+main > section[hidden] {
+  display: none !important;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+
+  background: #f5f5f0;
+  color: #111111;
+
+  font-family:
+    "Formae",
+    "Inter Variable",
+    Arial,
+    Helvetica,
+    sans-serif;
+}
+
+
+/* ========================================
+   DESCRIPTIVE TEXT (leíró betűk)
+   Every label/caption/metadata/body-copy element on the page, grouped
+   here so they can all be restyled together. Formae stays reserved for
+   the big display/showcase text.
+======================================== */
+
+.font-info-block h3,
+.font-info-block p,
+.font-info-block a,
+.font-info-style-list li,
+.font-info-note,
+.specimen-label,
+.text-sample span,
+.text-sample-half-article span,
+.type-scale-meta,
+.metric,
+.character-code,
+.feature-label,
+.section-title,
+.kerning-input-label,
+.kerning-control,
+.tester-controls,
+.cta span {
+  font-family: var(--descriptive-font);
+}
+
+
+/* ========================================
+   VARIABLES
+======================================== */
+
+:root {
+
+  --background: #f5f5f0;
+
+  --foreground: #111111;
+
+  --page-margin:
+    clamp(16px, 2.2vw, 36px);
+
+  --section-space:
+    clamp(80px, 10vw, 180px);
+
+  --border:
+    1px solid rgba(0, 0, 0, 0.45);
+
+  /* leíró betűk — every descriptive/label/caption text on the page
+     (metrics, feature labels, section titles, control labels, Font Info
+     copy) shares this one font stack so it can be changed in one place. */
+  --descriptive-font:
+    Arial, Helvetica, sans-serif;
+
+  /* "Poster" scaling for the specimen blocks (Text Samples, Type
+     Samples 2). Their compositions were designed at a 1920px-wide
+     viewport, where every glyph fits its box exactly. --u is what 1px of
+     that design measures at the current viewport: exactly 1px from 1920
+     up, shrinking in step with the viewport below that. Anything sized
+     as calc(N * var(--u)) therefore keeps the same proportions to its
+     box at every width, instead of staying N px while the box shrinks
+     around it (which is what cropped the big glyphs). */
+  --u:
+    min(1px, calc(100vw / 1920));
+
+  /* One size for every big section heading (Character Set, OpenType
+     Features, Buy Formae, Licensing options, More typefaces): 44px at
+     1920, then a steady linear decrease with the viewport -- no flat
+     stretches -- down to about 20px on a phone. */
+  --h1-size:
+    clamp(18px, calc(14px + 1.5625vw), 44px);
+
+}
+
+
+/* ========================================
+   NEWS WIDGET
+   Small floating panel, top-right -- a news/greeting card on top and
+   a compact list of the other typefaces below, each its own clickable
+   box. Loosely modeled on abcdinamo.com's corner widget.
+======================================== */
+
+.news-widget {
+  position: fixed;
+  top: calc(70px + 16px);
+  right: 16px;
+  z-index: 20;
+
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+
+  width: 240px;
+
+  font-family: "Inter Variable", Arial, Helvetica, sans-serif;
+}
+
+.news-widget-news {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+
+  padding: 14px 16px;
+
+  background: #fbb040;
+  color: #141413;
+
+  border-radius: 14px;
+
+  font-size: 13px;
+  line-height: 1.35;
+
+  animation: news-widget-wiggle 7s ease-in-out infinite;
+}
+
+/* A short wiggle burst up front, then a long still stretch, so it
+   catches the eye without being a constant distraction. */
+@keyframes news-widget-wiggle {
+  0%, 88% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+  90% {
+    transform: translate(-2px, 1px) rotate(-1deg);
+  }
+  92% {
+    transform: translate(2px, -1px) rotate(1deg);
+  }
+  94% {
+    transform: translate(-1px, 1px) rotate(-0.6deg);
+  }
+  96% {
+    transform: translate(1px, 0) rotate(0.4deg);
+  }
+  100% {
+    transform: translate(0, 0) rotate(0deg);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .news-widget-news {
+    animation: none;
+  }
+}
+
+.news-widget-greeting {
+  font-weight: 700;
+}
+
+.news-widget-news p {
+  margin: 0;
+}
+
+.news-widget-fonts {
+  padding: 14px 16px;
+
+  background: var(--background);
+  color: var(--foreground);
+
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 14px;
+}
+
+.news-widget-fonts-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 11px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  opacity: 0.6;
+}
+
+.news-widget-fonts-list {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.news-widget-font-box {
+  padding: 8px 10px;
+
+  color: inherit;
+  text-decoration: none;
+
+  background: rgba(0, 0, 0, 0.04);
+
+  border-radius: 8px;
+
+  font-size: 13px;
+
+  transition: background-color 150ms ease;
+}
+
+.news-widget-font-box:hover {
+  background: rgba(0, 0, 0, 0.09);
+}
+
+@media (max-width: 650px) {
+  .news-widget {
+    width: calc(100vw - 32px);
+  }
+}
+
+
+/* ========================================
+   HEADER
+======================================== */
+
+.header {
+  display: grid;
+
+  grid-template-columns: 1fr auto 1fr;
+
+  align-items: center;
+
+  gap: 16px;
+
+  min-height: 70px;
+
+  padding:
+    18px
+    var(--page-margin);
+
+  border-bottom:
+    var(--border);
+
+  /* The page body sets "Formae" first for the whole page's display
+     type, but the menu itself should read like every other page's
+     menu (system sans), not in the typeface being showcased. */
+  font-family: "Inter Variable", Arial, Helvetica, sans-serif;
+}
+
+
+.brand {
+  color: inherit;
+
+  text-decoration: none;
+
+  font-size: 17px;
+}
+
+
+.nav {
+  display: flex;
+
+  justify-self: center;
+
+  gap:
+    clamp(16px, 2vw, 34px);
+}
+
+
+.header-actions {
+  display: flex;
+
+  align-items: center;
+
+  justify-self: end;
+
+  gap: 10px;
+}
+
+
+.nav a {
+  color: inherit;
+
+  text-decoration: none;
+
+  font-size: 14px;
+}
+
+
+/* ========================================
+   TYPE SPECIMEN SLIDER
+======================================== */
+
+.type-slider {
+  position: relative;
+
+  border-bottom: var(--border);
+}
+
+.type-slider-viewport {
+  overflow: hidden;
+
+  height: 85svh;
+
+  border-top: var(--border);
+}
+
+.type-slider-track {
+  display: flex;
+
+  block-size: 100%;
+
+  will-change: transform;
+
+  transition: transform 620ms cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .type-slider-track {
+    transition: none;
+  }
+}
+
+.type-slider-slide {
+  position: relative;
+
+  flex: 0 0 100%;
+
+  width: 100%;
+
+  overflow: hidden;
+
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.type-slider-slide p {
+  margin: 0;
+
+  font-weight: 400;
+
+  white-space: nowrap;
+}
+
+/* Composition 1 -- one word, huge, cropped by the frame */
+.slide-bleed {
+  display: flex;
+
+  align-items: center;
+
+  justify-content: center;
+
+  height: 100%;
+}
+
+.slide-bleed p {
+  font-size: clamp(220px, 145vh, 2000px);
+
+  line-height: 0.85;
+
+  letter-spacing: -0.02em;
+
+  /* Shift up from dead-center: keep the top clearly cropped by the frame
+     while pulling the bottom back so it just meets the edge rather than
+     bleeding far past it. */
+  transform: translateY(-0.08em);
+}
+
+
+/* ========================================
+   FONT INFO
+======================================== */
+
+.font-info {
+  position: relative;
+
+  /* Pull up 1px to overlap the hero section above it -- both are the
+     same dark background, so the overlap is invisible, and it kills
+     any sub-pixel rounding gap between the image and this section
+     that could otherwise show a hairline of the page background. */
+  margin-top: -1px;
+  padding-top: calc(16px + 1px);
+
+  background: var(--foreground);
+  color: var(--background);
+
+  /* No border-bottom here -- the background-color change against the
+     next section is already a clear boundary; a dark 1px line on top
+     of that made the seam read as too heavy/harsh. */
+}
+
+.font-info-header {
+  position: relative;
+
+  margin: 0 var(--page-margin) 14px;
+}
+
+.font-info-header .font-info-title {
+  margin: 0;
+}
+
+.font-info-actions {
+  display: flex;
+
+  gap: 10px;
+}
+
+.font-info-header .font-info-actions {
+  position: absolute;
+
+  right: 0;
+  top: 50%;
+
+  transform: translateY(-50%);
+}
+
+/* The absolutely-positioned buttons are centered on the title's own
+   small height and anchored to the header's right edge -- fine when
+   the header is wide enough to keep them apart, but on a narrow
+   screen they land right on top of the "Font Info" label. Drop back
+   into normal flow and stack them below it instead. */
+@media (max-width: 650px) {
+  .font-info-header {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .font-info-header .font-info-actions {
+    position: static;
+
+    transform: none;
+  }
+}
+
+@keyframes font-info-actions-pin-in {
+  from {
+    opacity: 0;
+  }
+
+  to {
+    opacity: 1;
+  }
+}
+
+.font-info-actions.font-info-actions-pinned {
+  position: fixed;
+
+  top: calc(var(--header-height, 81px) / 2);
+  /* Unpinned right:0 is relative to .font-info-header, which is
+     itself inset by var(--page-margin) from the true edge -- pinned
+     right:0 is relative to the raw viewport instead, landing
+     page-margin further right and creating a sideways jump right at
+     the moment it pins. Matching page-margin here is what makes "0"
+     mean the same on-screen position in both states. */
+  right: var(--page-margin);
+  transform: translateY(-50%);
+
+  z-index: 11;
+
+  animation: font-info-actions-pin-in 260ms ease;
+}
+
+/* On a narrow header the nav links (Typefaces / Type Tester / About)
+   don't leave room for the pinned buttons too -- they'd land right on
+   top of each other. Hide the nav for as long as the buttons are
+   pinned there; the brand link is still enough to get back to top. */
+@media (max-width: 650px) {
+  body:has(.font-info-actions-pinned) .header .nav {
+    display: none;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .font-info-actions.font-info-actions-pinned {
+    animation: none;
+  }
+}
+
+/* .font-info-action-outline is styled for sitting on Font Info's dark
+   background -- once pinned, it's sitting on the header's light
+   background instead, so it needs the light-context colors back. */
+.font-info-actions-pinned .font-info-action-outline {
+  color: var(--foreground);
+
+  border: var(--border);
+}
+
+.font-info-action {
+  padding: 9px 20px;
+
+  font-family: var(--descriptive-font);
+
+  font-size: 12px;
+
+  text-decoration: none;
+
+  white-space: nowrap;
+
+  border-radius: 999px;
+}
+
+.font-info-action-outline {
+  color: var(--background);
+
+  border: 1px solid rgba(255, 255, 255, 0.5);
+}
+
+.font-info-action-solid {
+  color: var(--foreground);
+
+  background: #fbb040;
+
+  border: 1px solid #fbb040;
+}
+
+/* Unpinned (Font Info) vertical position, dialed in live via Design
+   Mode and baked in here -- scoped to :not(.font-info-actions-pinned)
+   so the pinned (header) state is untouched and stays exactly as it
+   is. */
+.font-info-actions:not(.font-info-actions-pinned) .font-info-action-solid {
+  margin-top: 40px;
+  padding-top: 9px;
+}
+
+.font-info-actions:not(.font-info-actions-pinned) .font-info-action-outline {
+  margin-top: 40px;
+  margin-right: -4px;
+  padding-top: 9px;
+  padding-bottom: 9px;
+}
+
+.font-info-grid {
+  display: grid;
+
+  grid-template-columns: repeat(12, 1fr);
+
+  column-gap: clamp(16px, 2vw, 32px);
+  row-gap: 0;
+
+  padding: 0 var(--page-margin) clamp(80px, 12vw, 160px);
+}
+
+.font-info-block {
+  grid-column: span 4;
+
+  padding-top: 16px;
+
+  border-top: 1px solid rgba(255, 255, 255, 0.35);
+
+  margin-top: clamp(24px, 3vw, 40px);
+}
+
+.font-info-block-description {
+  grid-column: 1 / -1;
+
+  padding-top: 0;
+
+  border-top: 0;
+
+  margin-top: 0;
+}
+
+.font-info-block h3 {
+  margin: 0 0 14px;
+
+  font-size: 12px;
+  font-weight: 400;
+
+  color: rgba(255, 255, 255, 0.55);
+
+  text-transform: none;
+}
+
+.font-info-block p,
+.font-info-block a {
+  margin: 0;
+
+  font-size: clamp(15px, 1.1vw, 19px);
+
+  line-height: 1.4;
+}
+
+.font-info-block-description p {
+  max-width: 46ch;
+
+  font-size: clamp(22px, 2.3vw, 34px);
+
+  line-height: 1.28;
+}
+
+.font-info-block a {
+  display: block;
+
+  margin-top: 8px;
+
+  color: inherit;
+
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+
+.font-info-style-list {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  gap: 8px 10px;
+
+  margin: 0;
+
+  padding: 0;
+
+  list-style: none;
+}
+
+.font-info-style-list li {
+  padding: 5px 12px;
+
+  color: rgba(255, 255, 255, 0.4);
+
+  border: 1px solid rgba(255, 255, 255, 0.35);
+  border-radius: 999px;
+
+  font-size: 12px;
+}
+
+/* Only Regular is actually finished -- keep it full-strength so it
+   reads as "ready" against the grayed-out unfinished weights. */
+.font-info-style-list .font-info-style-ready {
+  color: var(--background);
+}
+
+.font-info-placeholder {
+  color: rgba(255, 255, 255, 0.45);
+
+  font-style: italic;
+}
+
+.font-info-substyle {
+  margin-top: 14px;
+
+  font-size: 13px;
+}
+
+.font-info-note {
+  color: rgba(255, 255, 255, 0.5);
+
+  font-size: 0.75em;
+}
+
+/* The duplicate Font Info block, in the page's normal light colors
+   (var(--background)/var(--foreground), same as everywhere else)
+   instead of the original's dark background -- every child color
+   below that was baked in white-on-dark gets the same rgba flipped
+   to black. Only this one instance opts in, via .font-info-inverse
+   next to the shared .font-info class. */
+.font-info-inverse {
+  background: var(--background);
+  color: var(--foreground);
+}
+
+.font-info-inverse .font-info-block {
+  border-top: var(--border);
+}
+
+/* .font-info-block-description (the opening paragraph) opts back out,
+   same as the base .font-info-block-description rule does for the
+   original -- this rule is just that same exclusion re-applied since
+   .font-info-inverse .font-info-block comes later in the cascade. */
+.font-info-inverse .font-info-block-description {
+  border-top: 0;
+}
+
+.font-info-inverse .font-info-block h3 {
+  color: rgba(0, 0, 0, 0.55);
+}
+
+.font-info-inverse .font-info-style-list li {
+  color: rgba(0, 0, 0, 0.4);
+
+  border: 1px solid rgba(0, 0, 0, 0.35);
+}
+
+.font-info-inverse .font-info-style-list .font-info-style-ready {
+  color: var(--foreground);
+}
+
+.font-info-inverse .font-info-placeholder {
+  color: rgba(0, 0, 0, 0.45);
+}
+
+.font-info-inverse .font-info-note {
+  color: rgba(0, 0, 0, 0.5);
+}
+
+.font-info-inverse .font-info-action-outline {
+  color: var(--foreground);
+
+  border: var(--border);
+}
+
+.font-info-inverse .font-info-title {
+  display: none;
+}
+
+@media (max-width: 650px) {
+  .font-info-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .font-info-block,
+  .font-info-block-description {
+    grid-column: 1 / -1;
+  }
+}
+
+/* ========================================
+   KERNING LAB
+======================================== */
+
+.kerning-lab {
+  color: var(--background);
+
+  background: var(--foreground);
+
+  border-top: var(--border);
+  border-bottom: var(--border);
+}
+
+
+.kerning-toolbar {
+  padding:
+    24px
+    var(--page-margin)
+    40px;
+
+  display: grid;
+
+  grid-template-columns:
+    minmax(180px, 1fr)
+    minmax(180px, 1fr);
+
+  gap:
+    clamp(24px, 4vw, 70px);
+
+  align-items: end;
+}
+
+
+.kerning-kicker,
+.kerning-input-label {
+  display: block;
+
+  margin-bottom: 8px;
+
+  font-size: 11px;
+}
+
+
+.kerning-toolbar h2 {
+  margin: 0;
+
+  font-size: 18px;
+
+  font-weight: 400;
+}
+
+
+.kerning-control {
+  display: grid;
+
+  gap: 10px;
+
+  font-size: 12px;
+}
+
+
+.kerning-control span {
+  display: flex;
+
+  justify-content: space-between;
+}
+
+
+.kerning-control output {
+  font: inherit;
+}
+
+
+.kerning-control input[type="range"] {
+  width: 100%;
+
+  margin: 0;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  height: 1px;
+
+  background: var(--background);
+
+  outline: none;
+}
+
+
+.kerning-control input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: var(--background);
+
+  cursor: pointer;
+}
+
+
+.kerning-control input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background: var(--background);
+
+  cursor: pointer;
+}
+
+
+.kerning-input-label {
+  margin:
+    0
+    var(--page-margin)
+    8px;
+}
+
+
+.kerning-source {
+  width:
+    calc(100% - 2 * var(--page-margin));
+
+  margin:
+    0
+    var(--page-margin)
+    24px;
+
+  padding: 10px 0;
+
+  color: inherit;
+
+  background: transparent;
+
+  border: 0;
+
+  border-bottom:
+    1px solid rgba(245, 245, 240, 0.45);
+
+  border-radius: 0;
+
+  font: inherit;
+
+  font-size:
+    clamp(18px, 2vw, 30px);
+
+  outline: 0;
+}
+
+
+.kerning-source:focus {
+  border-bottom-color: currentColor;
+}
+
+
+.kerning-glyphs {
+  padding:
+    0
+    var(--page-margin)
+    var(--section-space);
+
+  display: flex;
+
+  flex-wrap: wrap;
+
+  align-items: stretch;
+}
+
+
+.kerning-glyph {
+  position: relative;
+
+  width:
+    calc(var(--kerning-cell-width, 100) * 1px);
+
+  height:
+    calc(var(--kerning-font-size, 180) * 1px + 42px);
+
+  padding:
+    24px
+    0
+    8px;
+
+  display: flex;
+
+  align-items: flex-end;
+
+  justify-content: center;
+
+  border-left:
+    1px solid rgba(245, 245, 240, 0.5);
+
+  overflow: hidden;
+}
+
+
+.kerning-glyph-value {
+  position: absolute;
+
+  top: 0;
+
+  left: 4px;
+
+  font-size: 9px;
+
+  font-weight: 400;
+}
+
+
+.kerning-glyph-character {
+  font-size:
+    calc(var(--kerning-font-size, 180) * 1px);
+
+  font-weight: var(--kerning-weight, 700);
+
+  font-variation-settings:
+    "wght" var(--kerning-weight, 700);
+
+  line-height: 1;
+
+  letter-spacing:
+    calc(var(--kerning-tracking, 0) * 1px);
+}
+
+
+/* ========================================
+   TYPE TESTER
+======================================== */
+
+.tester-section {
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, minmax(0, 1fr));
+
+  /* border-top restored: this used to sit directly below Font Info's
+     dark background, so the colour change alone read as a clear
+     boundary. Now that the light Font Info copy can land here too
+     (Reorder sections), that assumption no longer holds -- back to
+     the same border-top every other section has. */
+  border-top:
+    var(--border);
+
+  border-bottom:
+    var(--border);
+}
+
+
+.tester-unit:nth-child(-n + 1) {
+  grid-column: 1 / -1;
+}
+
+.tester-unit:nth-child(2),
+.tester-unit:nth-child(4),
+.tester-unit:nth-child(5) {
+  border-right:
+    var(--border);
+}
+
+
+.tester-unit:nth-child(6) {
+  grid-column: 2;
+  grid-row: 3 / span 2;
+}
+
+
+.tester-unit:nth-child(n + 2) .tester-controls {
+  grid-template-columns: repeat(3, 1fr);
+
+  /* Column gap (30px) matches Type Tester 01's spacing between its
+     inline items. Row gap is separate and much smaller: 01 has only
+     one row, so its 30px never reads as vertical whitespace there --
+     using the same number for the title-to-controls gap here read as
+     an oversized, unrelated space. */
+  row-gap: 10px;
+  column-gap: 30px;
+}
+
+.tester-unit:nth-child(n + 2) .tester-controls .tester-title {
+  grid-column: 1 / -1;
+}
+
+/* Each control gets ~1/3 of an already-halved column, too narrow for
+   the wide single-row layout -- label and value share a top row,
+   the slider takes its own full-width row underneath. */
+.tester-unit:nth-child(n + 2) .control {
+  grid-template-columns: auto 1fr;
+  grid-template-rows: auto auto;
+
+  row-gap: 4px;
+  column-gap: 8px;
+}
+
+.tester-unit:nth-child(n + 2) .control label {
+  grid-row: 1;
+  grid-column: 1;
+
+  margin-right: 0;
+}
+
+.tester-unit:nth-child(n + 2) .control span {
+  grid-row: 1;
+  grid-column: 2;
+
+  text-align: right;
+
+  padding-left: 0;
+}
+
+.tester-unit:nth-child(n + 2) .control input[type="range"] {
+  grid-row: 2;
+  grid-column: 1 / -1;
+}
+
+
+.tester-controls {
+  display: grid;
+
+  grid-template-columns:
+    1fr
+    repeat(3, minmax(200px, 1fr));
+
+  align-items: center;
+
+  gap: 30px;
+
+  padding:
+    14px
+    var(--page-margin);
+
+  border-bottom:
+    var(--border);
+
+  font-size: 12px;
+}
+
+
+.tester-title {
+  white-space: nowrap;
+}
+
+
+.control {
+  display: grid;
+
+  grid-template-columns:
+    auto
+    minmax(0, 0.65fr)
+    55px
+    minmax(0, 0.35fr);
+
+  align-items: center;
+
+  gap: 0;
+}
+
+
+.control label {
+  white-space: nowrap;
+
+  margin-right: 16px;
+}
+
+
+.control span {
+  white-space: nowrap;
+
+  text-align: left;
+
+  padding-left: 20px;
+}
+
+
+/* slider */
+
+.control input[type="range"] {
+  width: 100%;
+
+  justify-self: start;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  height: 1px;
+
+  background: #111;
+
+  outline: none;
+}
+
+
+.control input[type="range"]::-webkit-slider-thumb {
+  appearance: none;
+  -webkit-appearance: none;
+
+  width: 12px;
+  height: 12px;
+
+  border-radius: 50%;
+
+  background: #111;
+
+  cursor: pointer;
+}
+
+
+.control input[type="range"]::-moz-range-thumb {
+  width: 12px;
+  height: 12px;
+
+  border: 0;
+
+  border-radius: 50%;
+
+  background: #111;
+
+  cursor: pointer;
+}
+
+
+/* editable tester */
+
+.tester-unit + .tester-unit {
+  border-top:
+    var(--border);
+}
+
+
+.tester {
+  width: 100%;
+
+  min-height:
+    clamp(320px, 45vw, 720px);
+
+  padding:
+    clamp(35px, 5vw, 80px)
+    var(--page-margin);
+
+  font-size: 160px;
+
+  font-weight: 400;
+
+  line-height: 1.2;
+
+  letter-spacing: 0;
+
+  outline: none;
+
+  cursor: text;
+
+  overflow-wrap: anywhere;
+}
+
+
+.tester-large {
+  font-size: 350px;
+  font-weight: 900;
+  font-variation-settings: "wght" 900;
+  line-height: 1.2;
+  letter-spacing: -0.025em;
+}
+
+
+.tester-medium {
+  font-size: 225px;
+  font-weight: 600;
+  font-variation-settings: "wght" 600;
+
+  /* This box scales from a small default up to screen-filling sizes
+     (see applyTesterSize's heightSafe cap in script.js), so it can't
+     use the shared .tester min-height clamp -- that assumes a
+     permanently large display size and left a big empty gap below
+     small text. Let height track content instead, so the padding
+     above and below the text stays equal at any size. */
+  min-height: 0;
+}
+
+
+/* .tester.tester-small (not just .tester-small) so the tablet/phone
+   .tester rules further down -- which used to pin a 220-540px
+   min-height and 26-56px padding on these boxes -- can no longer
+   override it. Type Tester 02/03 scale as one piece: applyTesterSize
+   (script.js) sizes the text off the box's own width with no px floor,
+   so the text wraps identically at every width and the box height
+   follows it, keeping the box's proportions. */
+.tester.tester-small {
+  font-size: 56px;
+
+  /* Less vertical breathing room above/below the text (left/right
+     stays the shared var(--page-margin) from the base rule's
+     shorthand). Letters keep whatever size the Size slider has set
+     (inline style, untouched here) -- with a full paragraph at that
+     size, the wrapped text itself is much taller than the floor below,
+     so it (not this rule) ends up setting the box's real height. The
+     floor is 200px at the 1920 design width and scales with the
+     viewport below it (see --u). */
+  min-height: calc(200 * var(--u));
+  padding-top: clamp(10px, 1.4vw, 22px);
+  padding-bottom: clamp(10px, 1.4vw, 22px);
+}
+
+
+.tester-micro {
+  min-height: 0;
+  padding: 28px var(--page-margin);
+  font-size: 16px;
+  line-height: 1.1;
+  letter-spacing: 0.4px;
+}
+
+
+.tester:focus {
+  outline: none;
+}
+
+
+/* ========================================
+   SPECIMENS
+======================================== */
+
+.specimen {
+  position: relative;
+
+  display: flex;
+
+  align-items: center;
+
+  /* ~20% taller than before -- now that each word fits its own box
+     wall to wall (often bigger than the old fixed clamp), the extra
+     height gives more breathing room around the letters and between
+     one specimen row and the next. Bumped again for even more room
+     between rows. */
+  min-height: clamp(320px, 40vw, 550px);
+
+  padding:
+    var(--page-margin);
+
+  border-bottom:
+    var(--border);
+}
+
+
+.specimen-label {
+  position: absolute;
+
+  top: calc(var(--page-margin) / 2);
+
+  left: var(--page-margin);
+
+  margin-bottom: 0;
+
+  color: #555;
+
+  font-size: 12px;
+
+  text-align: left;
+}
+
+
+.specimen-text.specimen-text-match-wine {
+  font-size:
+    clamp(141px, 35.3vw, 706px);
+}
+
+.specimen-text {
+  width: 100%;
+
+  font-size:
+    clamp(82px, 15vw, 280px);
+
+  line-height: 1.2;
+
+  letter-spacing: -0.055em;
+
+  text-align: left;
+
+  white-space: nowrap;
+
+  overflow: hidden;
+}
+
+.specimen-text-long {
+  font-size:
+    clamp(28px, 4.2vw, 110px);
+}
+
+
+.pictogram-specimen {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start;
+  gap: clamp(12px, 2vw, 30px);
+  width: 100%;
+  font-size: clamp(58px, 8vw, 140px);
+  line-height: 1;
+  letter-spacing: 0;
+  text-align: left;
+  font-family: inherit;
+  font-variant-emoji: text;
+}
+
+
+.pictogram-specimen span {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  font-family: inherit;
+}
+
+
+.thin {
+  font-weight: 100;
+}
+
+.light {
+  font-weight: 300;
+}
+
+.regular {
+  font-weight: 400;
+}
+
+.medium {
+  font-weight: 500;
+}
+
+
+.semibold {
+  font-weight: 600;
+}
+
+.bold {
+  font-weight: 700;
+}
+
+.old-english {
+  font-family: "Formae Old English", "Formae", "Inter Variable", Arial, Helvetica, sans-serif;
+  font-weight: 400;
+}
+
+.black {
+  font-weight: 900;
+}
+
+
+.specimen-text:not(.pictogram-specimen) {
+  /* No fixed height/flex-end anchor here anymore -- that pinned the
+     glyphs to a box shorter than the row, so taller rows just left
+     them floating near the top instead of centered. The row itself
+     (.specimen, align-items: center) does all the vertical centering
+     now; this only needs to size its own line. */
+  line-height: 0.9;
+  white-space: nowrap;
+  overflow: visible;
+}
+
+
+/* ========================================
+   DISPLAY
+======================================== */
+
+.display-block {
+  min-height: 85svh;
+
+  padding:
+    var(--page-margin)
+    var(--page-margin)
+    clamp(145px, 18.8vw, 255px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  border-bottom:
+    var(--border);
+}
+
+
+.display-small {
+  font-size: 12px;
+}
+
+
+.display-large {
+  font-size:
+    clamp(220px, 45vw, 820px);
+
+  font-weight: 900;
+
+  font-variation-settings: "wght" 900;
+
+  line-height: 0.64;
+
+  letter-spacing: -0.08em;
+}
+
+
+/* ========================================
+   SECTION TITLE
+======================================== */
+
+.section-title {
+  margin-bottom: 24px;
+
+  color: #555;
+
+  font-size: 12px;
+}
+
+
+/* ========================================
+   TEXT SAMPLES
+======================================== */
+
+.text-samples {
+  position: relative;
+  z-index: 1;
+
+  display: grid;
+
+  grid-template-columns:
+    repeat(2, 1fr);
+
+  background: var(--background);
+
+  border-bottom:
+    var(--border);
+}
+
+/* Every section from here to the end of the page is its own, fully
+   separate part -- opaque and stacked above the sticky Ligature
+   Showcase Black once and for all, so nothing this far down can ever
+   show that dark layer through again, no matter how far the page
+   continues after it. */
+.ligature-showcase-5-line ~ section {
+  position: relative;
+  z-index: 1;
+
+  background: var(--background);
+}
+
+/* The footer is a section too (so it's reorderable/hideable like the
+   rest), but it's meant to stay dark -- opt it back out of the light
+   reset above. */
+.ligature-showcase-5-line ~ section.site-footer {
+  background: var(--foreground);
+}
+
+/* The seam against the dark Ligature Showcase Black section right
+   above reads heavier than every other --border line on the page (a
+   0.45-alpha black line sitting right at a dark-to-light transition),
+   so just this top edge -- not the shared --border variable used
+   everywhere else -- gets a lighter alpha. */
+.ligature-showcase-5-line + .text-samples > .text-sample:nth-child(-n + 2) {
+  border-top-color: rgba(0, 0, 0, 0.06);
+}
+
+/* Two .text-samples sections back to back double up the seam: the first
+   section's own border-bottom and the second section's first-row
+   border-top both land on the same edge, stacking into a 2px line
+   instead of the 1px used everywhere else on the page. Drop the
+   second one so the seam matches every other divider. */
+.text-samples + .text-samples > .text-sample:nth-child(-n + 2) {
+  border-top: none;
+}
+
+.text-samples::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+
+.text-sample {
+  container-type: size;
+
+  /* 680px tall at the 1920 design width, shrinking in step with the
+     viewport below it, so the box keeps its proportions instead of
+     hitting a fixed-px floor (see --u). */
+  height:
+    calc(680 * var(--u));
+
+  padding:
+    16px
+    var(--page-margin)
+    clamp(35px, 5vw, 80px);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  overflow: hidden;
+
+  border-top:
+    var(--border);
+}
+
+
+
+
+.text-sample span {
+  color: #555;
+
+  font-size: 12px;
+}
+
+
+.text-sample p {
+  margin: 0;
+
+  /* Optical correction: the gap between the label and the ink-top is a
+     fixed px component (from the flex gap) plus a proportional em
+     component (from line-height leading), measured empirically across
+     all four boxes. A pure em value can't fix it alone since the fixed
+     part doesn't scale — mix px and em so the visible gap comes out the
+     same at every font-size. */
+  margin-top: calc(0.049em - 1.07px);
+
+  letter-spacing: -0.04em;
+}
+
+
+.text-sample-hero {
+  position: relative;
+
+  grid-column: auto;
+
+  justify-content: flex-start;
+
+  gap: 12px;
+}
+
+.text-sample-hero p.text-sample-hero-huge {
+  font-size:
+    min(50cqmin, 460px);
+}
+
+.text-sample-hero p.text-sample-hero-6x {
+  position: relative;
+
+  z-index: 1;
+
+  font-size:
+    min(15vw, 280px);
+
+  /* This box renders at a much larger font-size (up to 280px, sized by
+     vw) than Sauvignon's box next to it (settles around 116.6px, sized
+     by cqmin), so the shared base formula alone leaves a real residual
+     gap between their true ink-tops at this scale -- not fully
+     explained by cap-glyph overshoot differences alone. Re-measured
+     empirically with the canvas + baseline-marker method (see memory)
+     whenever the word here changes; do not assume a theoretical
+     glyph-shape argument predicts the right number -- verify it.
+     The 30px pull-up is a design-width px (see --u): a flat 30px would
+     drag a shrunken word up over its own label. */
+  margin-top: calc(0.049em - 1.07px - 30 * var(--u));
+}
+
+.text-sample-hero p {
+  max-width: 1200px;
+
+  font-size:
+    min(20cqmin, 200px);
+
+  font-weight: 900;
+
+  line-height: 1.1;
+}
+
+/* FONTFRONT only -- runs wall to wall (the same left/right page-margin
+   every other "wall" on the page is measured from), not capped at the
+   shared 1200px .text-sample-hero p max-width. The FIT TO WIDTH script
+   (script.js) does the actual sizing; nowrap keeps the measurement
+   from wrapping onto a second line while it does. */
+.text-sample-hero p.text-sample-hero-fullwidth {
+  max-width: none;
+
+  white-space: nowrap;
+}
+
+/* Every block across Text Samples and Type Samples 2, built the same
+   way as the glyph-quad boxes above: normal colours at rest, inverted
+   (background/text swapped) only on the hovered block. Applied to
+   each article (one hover region each) except the a-cycle/Wine
+   Remembers split, where each half gets its own -- matching the
+   quads' one-region-per-box granularity. */
+.text-sample-invertible {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.text-sample-invertible:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+
+.text-sample-inverse {
+  align-items: center;
+
+  justify-content: center;
+
+  padding-top:
+    clamp(35px, 5vw, 80px);
+
+  color: var(--background);
+
+  background: var(--foreground);
+}
+
+.text-sample-inverse p {
+  text-align: center;
+
+  font-size:
+    min(55cqmin, 400px);
+}
+
+
+.text-sample-large p {
+  /* Sized off container WIDTH (cqw), not cqmin -- cqmin picks
+     min(container width, container height), and this box's height is
+     often the smaller dimension, which let the font-size grow past
+     what the line actually fits and broke the forced 2-line break
+     (each half wrapped again). 8.5cqw is derived from the real glyph
+     advance widths of "season it was born in." (the longer half) via
+     fontTools against Formae-Regular, with a safety margin for
+     kerning/rounding -- it guarantees fit at any container width,
+     which is why no separate mobile/tablet override is needed here. */
+  font-size:
+    min(8.5cqw, 150px);
+
+  font-weight: 500;
+
+  line-height: 1.1;
+}
+
+
+.text-sample-large,
+.text-sample-medium {
+  height:
+    calc(680 * var(--u));
+
+  min-height: 0;
+
+  justify-content: flex-start;
+
+  gap: 12px;
+}
+
+.text-sample-large {
+  padding-right:
+    clamp(40px, 7vw, 120px);
+}
+
+/* "à" and "1%" are two fully independent <article> elements (like
+   FONTFRONT or Each Vintage), not one article split into two divs --
+   a shared parent's own padding was fighting with the absolutely
+   positioned accented-a glyph in ways that were never fully fixable.
+   This wrap just takes the grid-cell slot the old combined article
+   used to occupy in .text-samples's own 2-column grid, and lays its
+   two article children side by side inside that one cell. */
+.text-sample-split-wrap {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+
+  /* Same top divider every other box on the page draws for itself. */
+  border-top: var(--border);
+}
+
+.text-sample-split-wrap::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.text-sample-half-article {
+  container-type: size;
+
+  height: calc(680 * var(--u));
+
+  display: flex;
+
+  flex-direction: column;
+  justify-content: space-between;
+
+  overflow: hidden;
+
+  /* Same values .text-sample's own shorthand used to provide for the
+     shared article -- each half now supplies them independently, so
+     nothing about a shared parent can shift the other one's content. */
+  padding: 16px var(--page-margin) clamp(35px, 5vw, 80px);
+}
+
+.text-sample-half-article:first-child {
+  position: relative;
+
+  padding-left: 0;
+}
+
+.text-sample-half-article:last-child {
+  padding-right: 0;
+}
+
+/* Same label/copy typography .text-sample span/p give every other
+   box -- replicated directly since these two articles intentionally
+   don't carry the .text-sample class itself (that also brings its own
+   border-top, which .text-sample-split-wrap already opts out of). */
+.text-sample-half-article span {
+  color: #555;
+
+  font-size: 12px;
+}
+
+.text-sample-half-article p {
+  margin: 0;
+
+  margin-top: calc(0.049em - 1.07px);
+
+  letter-spacing: -0.04em;
+
+  font-size: min(8.5cqw, 150px);
+  font-weight: 500;
+  line-height: 1.1;
+}
+
+
+/* 56px at the 1920 design width (what 10cqmin resolves to there, capped),
+   scaled with the box below it. */
+.text-sample-medium p {
+  font-size:
+    calc(56 * var(--u));
+
+  font-weight: 300;
+
+  line-height: 1.1;
+}
+
+/* The label (span) and content (p) of a plain .text-sample article are
+   both direct flex-item children of the article itself, so they're
+   already independent for their OWN margin/padding -- but Design
+   Mode's "Parent padding" field edits the article they share, moving
+   both together at once. Wrapping each in its own plain div (no
+   layout properties of its own) makes ITS padding the one "Parent
+   padding" affects, so editing one no longer touches the other. */
+.text-sample-independent-item {
+  display: block;
+}
+
+
+/* Sauvignon cell split into a 2x2 grid of 4 smaller samples, and Wine
+   Remembers split into 2 side-by-side halves -- each sub-box gets its
+   own container-type:size so the inherited cqmin/cqw font-size
+   formulas above resolve against the sub-box's own (smaller) size
+   instead of the whole original cell. */
+.text-sample-split-4 {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+  grid-template-rows: repeat(2, 1fr);
+
+  gap: 0;
+
+  /* .text-sample's own padding would otherwise inset the whole grid
+     from the article's true edges -- the divider and the hover fill
+     both need to reach those edges in every case, so this section
+     overrides it back to 0 and lets each quad's own padding (below)
+     recreate just the label's inset instead. */
+  padding: 0;
+}
+
+/* 4 genuinely separate boxes: the divider is each cell's OWN border,
+   not a line positioned to (hopefully) coincide with a box edge -- a
+   border can never drift off the edge it's drawn on. Right column and
+   bottom row skip the border they'd otherwise duplicate on their
+   neighbour; the outer edges intentionally stay bare. */
+.text-sample-split-4 .text-sample-quad:nth-child(odd) {
+  border-right: 1px solid rgba(0, 0, 0, 0.45);
+}
+
+.text-sample-split-4 .text-sample-quad:nth-child(-n + 2) {
+  border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+}
+
+.text-sample-quad {
+  position: relative;
+
+  container-type: size;
+
+  display: flex;
+
+  flex-direction: column;
+  justify-content: space-between;
+
+  padding: 16px var(--page-margin);
+}
+
+.text-sample-quad p {
+  font-size:
+    min(20cqmin, 90px);
+
+  font-weight: 900;
+
+  line-height: 1.1;
+}
+
+/* Glyph showcase quads: normal colours at rest, and only the hovered
+   square inverts (background becomes black, the glyph becomes the
+   page's background colour). */
+.text-sample-quad-glyph {
+  transition:
+    background-color 200ms ease,
+    color 200ms ease;
+}
+
+.text-sample-quad-glyph:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+/* Positioned + stacked above the glyph (also absolutely positioned,
+   but painted later in source order) so the label's own corner stays
+   clickable in Design Mode instead of the full-bleed glyph beneath it
+   winning every hit test there. */
+.text-sample-quad-glyph span {
+  position: relative;
+  z-index: 1;
+
+  /* One line, cut with an ellipsis: in a shrunken box the long
+     "U+003F U+0021 / 233 / Question Mark + Exclamation" label used to
+     wrap into several lines and run over the glyph. */
+  min-width: 0;
+  overflow: hidden;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+}
+
+/* The labels are a fixed 12px while the boxes scale down with the
+   viewport, so on a small poster they end up printed over the glyphs
+   (the quads' long labels first, from about 930px; the others below the
+   650px phone breakpoint). Hide them there. visibility (not display) so
+   the label's space stays and nothing in the composition moves. */
+@media (max-width: 930px) {
+  .text-sample-quad-glyph span {
+    visibility: hidden;
+  }
+}
+
+@media (max-width: 650px) {
+  .text-samples span {
+    visibility: hidden;
+  }
+}
+
+.text-sample-quad-glyph p {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+  color: inherit;
+
+  /* ~233px at the 1920 design width (what 76cqmin resolved to in the
+     quad's box there), scaled with the box below it. cqmin alone can't
+     do this: the quad's fixed 16px padding eats a growing share of a
+     shrinking box, so the glyph would shrink faster than the box. */
+  font-size:
+    calc(233.3 * var(--u));
+
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .text-sample-quad-glyph {
+    transition: none;
+  }
+}
+
+.text-sample-split-2 {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: repeat(2, 1fr);
+}
+
+.text-sample-split-2::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+/* Cycling accented "a" -- same rendered size as the "&" glyph-quad
+   character, centered in the half like the glyph-quad boxes. */
+.a-cycle {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  align-items: center;
+  justify-content: center;
+
+  margin: 0;
+
+  font-weight: 900;
+}
+
+/* ID to beat .text-sample-half-article p's own font-size rule (0,1,1
+   specificity vs .a-cycle's 0,1,0) instead of just losing to it
+   silently regardless of source order. Scales off the half's own
+   container size (same cqmin approach as the glyph-quad boxes) so it
+   settles at the requested 350px on desktop but doesn't overflow its
+   box once that container shrinks on narrower screens -- a flat
+   350px doesn't respond to viewport size and was clipping badly on
+   mobile.
+
+   Now a design-width px (315px at 1920, what 78cqmin resolved to
+   there): cqmin follows the half's content box, whose fixed paddings
+   don't shrink with it, so it drifted off-proportion at narrow widths. */
+#a-cycle {
+  font-size: min(calc(315.3 * var(--u)), 350px);
+}
+
+
+/* ========================================
+   TYPE SCALE SPECIMEN
+   12-column grid: full-width intro, 1/3 + 2/3 row, then three equal
+   columns. Every block renders in Regular, matching the page-wide
+   "force everything to Regular" rule further down — the other static
+   weight exports (Bold/Medium/Light/Extrabold/etc.) currently have
+   broken/empty outlines for several letters (F, b, d, e, h, m, n, p, r,
+   u, y), so only Regular is usable until those exports are fixed.
+======================================== */
+
+.type-scale {
+  border-bottom: var(--border);
+}
+
+.type-scale-grid {
+  display: grid;
+
+  grid-template-columns: repeat(12, 1fr);
+
+  column-gap: 10px;
+  row-gap: clamp(28px, 4vw, 64px);
+
+  padding:
+    clamp(28px, 4vw, 64px)
+    var(--page-margin);
+}
+
+.type-scale-block {
+  grid-column: span 12;
+
+  border-top: var(--border);
+
+  padding-top: 16px;
+}
+
+.type-scale-1 {
+  border-top: 0;
+
+  /* Cancel out .type-scale-grid's own top padding so this block's label
+     sits exactly 14px below the section start -- the same gap every
+     other block has from its own border-top line, not that plus the
+     grid's extra top padding on top. */
+  margin-top: calc(-1 * clamp(28px, 4vw, 64px));
+}
+
+.type-scale-meta {
+  margin-bottom: clamp(14px, 1.6vw, 28px);
+
+  color: #555;
+
+  font-size: 12px;
+}
+
+.type-scale-text {
+  margin: 0;
+
+  outline: 0;
+
+  overflow-wrap: break-word;
+}
+
+.type-scale-2 {
+  grid-column: span 4;
+}
+
+.type-scale-3 {
+  grid-column: span 8;
+}
+
+.type-scale-4,
+.type-scale-5,
+.type-scale-6 {
+  grid-column: span 4;
+}
+
+/* Formae's own ascender-to-descender span is 950 + 250 = 1.2em, so any
+   line-height below ~1.25 makes descenders touch the next line's
+   ascenders. Using one consistent value here (matching the line-height
+   already used elsewhere on the page, e.g. .specimen-text) rather than
+   a bespoke tighter number per block. */
+
+.type-scale-1 .type-scale-text {
+  max-width: 20ch;
+
+  font-size: clamp(40px, 6.1vw, 88px);
+  line-height: 1.3;
+  letter-spacing: 0;
+}
+
+.type-scale-2 .type-scale-text {
+  font-size: clamp(30px, 4.44vw, 64px);
+  line-height: 1.3;
+  letter-spacing: -0.01em;
+}
+
+.type-scale-3 .type-scale-text {
+  max-width: 34ch;
+
+  font-size: clamp(24px, 3.33vw, 48px);
+  line-height: 1.3;
+}
+
+.type-scale-4 .type-scale-text {
+  font-size: clamp(19px, 2.22vw, 32px);
+  line-height: 1.3;
+}
+
+.type-scale-5 .type-scale-text {
+  font-size: clamp(15px, 1.67vw, 24px);
+  line-height: 1.3;
+}
+
+.type-scale-6 .type-scale-text {
+  font-size: clamp(13px, 1.11vw, 16px);
+  line-height: 1.3;
+}
+
+@media (min-width: 651px) and (max-width: 900px) {
+  .type-scale-4,
+  .type-scale-5 {
+    grid-column: span 6;
+  }
+
+  .type-scale-6 {
+    grid-column: span 12;
+  }
+}
+
+
+/* ========================================
+   CHARACTERS
+======================================== */
+
+.characters {
+  padding-top: 16px;
+
+  border-bottom:
+    var(--border);
+}
+
+/* Matches the "Buy Formae" / "More typefaces" heading treatment,
+   overriding the shared .section-title rule's small muted-caption
+   size/colour (that rule is also the H2 label group used all over the
+   page -- kept untouched, this just opts Character Set's own title
+   out of it). */
+.characters > .section-title {
+  /* Same heading-to-next-row gap as "Licensing options". */
+  margin: 0 var(--page-margin) 20px;
+
+  color: var(--foreground);
+
+  font-family: var(--descriptive-font);
+  font-size: var(--h1-size);
+}
+
+.character-browser {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  align-items: start;
+  border-top: var(--border);
+}
+
+.character-preview {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+  height: 100svh;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+
+  /* Sticky release right at the section's own border-bottom (the list
+     column next to it is much taller than one viewport, so this
+     panel stays pinned almost the whole way down it) is a rough edge
+     -- an explicit opaque background here means that transition can
+     never look like it's blending/fading with whatever's below it. */
+  background: var(--background);
+}
+
+/* Two-column layout (over 900px): the panel is half the viewport wide but
+   as tall as the whole viewport, and the glyph is sized from that height --
+   so in a tall or narrow window even an "A" (and much more so the wide
+   Œ, ‰ ...) ran out of the panel on both sides. The height is capped
+   relative to the width instead: 57vw up to 1300px wide (the widest glyph
+   then stays inside the panel at any window height), 63vw above that,
+   which only bites in tall, squarish windows -- every normal desktop
+   viewport (16:10 and wider) keeps its full 100svh and sticks at the top
+   as before. When the cap makes the panel shorter than the viewport it
+   sticks vertically centred instead, so the two columns stay balanced
+   side by side. */
+@media (min-width: 901px) {
+  .character-preview {
+    --preview-h: min(100svh, 63vw);
+    height: var(--preview-h);
+    top: calc((100svh - var(--preview-h)) / 2);
+  }
+}
+
+@media (min-width: 901px) and (max-width: 1300px) {
+  .character-preview {
+    --preview-h: min(100svh, 57vw);
+  }
+}
+
+.character-preview > #character-preview-value {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+#character-preview-canvas {
+  position: absolute;
+  inset: 0;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.character-metrics {
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+}
+
+.metric {
+  position: absolute;
+  left: 28px;
+  right: 28px;
+  display: grid;
+  grid-template-columns: auto 1fr auto;
+  align-items: center;
+  gap: 10px;
+  color: #555;
+  font-size: 12px;
+  line-height: 1;
+  letter-spacing: 0.02em;
+}
+
+.metric i {
+  display: block;
+  border-top: 1px solid #777;
+}
+
+.metric-ascender { top: 7%; }
+.metric-cap { top: 25.2%; }
+.metric-x { top: 36.4%; }
+.metric-baseline { top: 74.1%; }
+.metric-descender { top: 93%; }
+
+.character-code {
+  position: absolute;
+  z-index: 2;
+  bottom: 2.5%;
+  left: 50%;
+  display: flex;
+  gap: 16px;
+  transform: translateX(-50%);
+  color: #555;
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+}
+
+/* Denser grid: the same 56px minimum cell a phone uses, at every width.
+   The columns are auto-fit, so a wider screen fits more of them and the
+   list gets shorter -- laptop and tablet now scroll far less than the
+   phone does (they used to scroll more: 86px cells left only 5-8 columns
+   and made this the longest stretch of the page). */
+.character-list {
+  display: grid;
+  grid-template-columns:
+    repeat(auto-fit, minmax(56px, 1fr));
+  align-content: start;
+  min-width: 0;
+  border-left: var(--border);
+}
+
+.character-group {
+  display: contents;
+}
+
+
+.character-group h3 {
+  display: none;
+}
+
+
+.character-grid {
+  display: contents;
+}
+
+
+.character-grid span {
+  aspect-ratio: 1;
+
+  box-sizing: border-box;
+
+  display: grid;
+
+  place-items: center;
+
+  padding: 10px;
+
+  border-right:
+    var(--border);
+
+  border-bottom:
+    var(--border);
+
+  /* Sized for the denser ~56-65px cells above (the columns are
+     auto-fit, so a cell stays about this size at every width and the
+     glyph inside it stays about this size too). */
+  font-size:
+    clamp(24px, 1.9vw, 30px);
+
+  line-height: 1;
+
+  cursor: pointer;
+
+  transition:
+    color 120ms ease,
+    background-color 120ms ease;
+}
+
+.character-grid span:hover,
+.character-grid span:focus-visible,
+.character-grid span.is-selected {
+  color: var(--background);
+  background: var(--foreground);
+  outline: 0;
+}
+
+/* Desktop is the base and lists the whole set (339). The list gets
+   shorter only as the viewport does, so it never turns into a long
+   scroll on a small screen:
+
+     over 900px     339   everything
+     651-900px      180   tablet: no Symbols & Arrows / Mathematical
+                          Symbols, and the accented Latin groups keep a
+                          core selection only (Latin-1, the Hungarian
+                          double acutes, a few Central European letters)
+     650px and less 103   phone: plain groups only -- A-Z, a-z, numerals
+                          and punctuation
+
+   Every glyph stays in the markup; the classes below only say from which
+   width down it is hidden. Written as ".character-list .x" so they win
+   over the cell/group display rules above. */
+@media (max-width: 900px) {
+  .character-list .character-hide-tablet {
+    display: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .character-list .character-hide-phone {
+    display: none;
+  }
+}
+
+
+/* ========================================
+   SPECIMEN IMAGE (standalone, above the Æðelstan specimen block)
+======================================== */
+
+.specimen-image-section {
+  margin: 0;
+}
+
+.specimen-image-section img {
+  display: block;
+
+  width: 100%;
+  height: auto;
+}
+
+/* Same layered slide as the Ligature Showcase Black: the image stays put
+   while the next section scrolls up over it, so the boundary reads as one
+   layer sliding under the next instead of a hard cut. Every section after
+   the Ligature already has an opaque background + z-index:1 (see the
+   .ligature-showcase-5-line ~ section rule), so nothing shows the image
+   through; the more specific selector here just wins over that rule's
+   position:relative. The image is 16:9, so when the window is shorter than
+   it (wide, low windows) it pins by its bottom edge instead of its top --
+   otherwise its lower part would never be seen before the next section
+   covers it. */
+main > section.specimen-image-section {
+  position: sticky;
+  top: min(0px, calc(100svh - 56.25vw));
+  z-index: 0;
+}
+
+
+/* ========================================
+   FORMAE HERO IMAGE
+======================================== */
+
+.formae-hero-section {
+  margin: 0;
+
+  /* The image is deliberately 55px shorter than 100svh (leaves room
+     for something below it), which showed as a pale gap between the
+     photo and the dark Font Info section right after -- give the
+     section itself the same dark background so that sliver reads as
+     part of Font Info instead of a stray line. */
+  background: var(--foreground);
+}
+
+.formae-hero {
+  display: block;
+
+  width: 100%;
+
+  height: calc(100svh - 55px);
+
+  object-fit: cover;
+
+  object-position: center;
+}
+
+/* At narrow widths, a fixed near-full-height crop of this wide photo
+   leaves only a sliver of its width on screen -- cropping the baked-in
+   "Formae" wordmark down to one or two letters. Let the image keep its
+   own aspect ratio at full width instead, so the whole wordmark is
+   always visible. Tablet portrait (~768px) has the exact same problem
+   as phones, so this covers both instead of stopping at 650px. */
+@media (max-width: 1024px) {
+  .formae-hero {
+    height: auto;
+
+    aspect-ratio: 2400 / 1359;
+  }
+}
+
+
+/* ========================================
+   LIGATURE SHOWCASE
+======================================== */
+
+.ligature-showcase {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 20px;
+
+  padding:
+    clamp(60px, 10vw, 140px)
+    var(--page-margin);
+
+  text-align: center;
+
+  border-bottom:
+    var(--border);
+}
+
+.ligature-showcase-inverse {
+  background: var(--foreground);
+
+  color: var(--background);
+}
+
+.ligature-showcase-inverse .ligature-showcase-word {
+  color: var(--background);
+}
+
+.ligature-showcase-word {
+  width: 100%;
+
+  margin: 0;
+
+  font-size:
+    clamp(90px, 16vw, 300px);
+
+  font-weight: 400;
+
+  line-height: 1.1;
+
+  text-align: center;
+
+  letter-spacing: -0.02em;
+}
+
+.ligature-showcase-word-long {
+  font-size:
+    clamp(49px, 7.9vw, 156px);
+}
+
+/* Cropped, zoomed-in treatment for the first ligature showcase -- the
+   words run noticeably larger than the frame, like a close-up crop. The
+   box itself is locked to the exact height the section would naturally
+   have at the REGULAR word size (same padding/line-height/gap formula
+   as the base rules above), so the enlarged text overflows and gets
+   masked by that fixed-size box instead of growing the section taller.
+   Centering (align-items/justify-content/text-align) is unchanged from
+   the base rule, so it stays centered while cropping top and bottom. */
+.ligature-showcase-zoomed {
+  position: relative;
+
+  height:
+    calc(
+      2 * clamp(60px, 10vw, 140px) +
+      4 * 1.1 * clamp(49px, 7.9vw, 156px) +
+      3 * 20px
+    );
+
+  background: #999999;
+
+  overflow: hidden;
+}
+
+/* One extra line (5 instead of 4): same formula, with the line-count
+   and gap-count terms bumped by one. */
+.ligature-showcase-5-line {
+  height:
+    calc(
+      2 * clamp(60px, 10vw, 140px) +
+      5 * 1.1 * clamp(49px, 7.9vw, 156px) +
+      4 * 20px
+    );
+
+  /* .ligature-showcase's own border-bottom was stacking with
+     .text-sample's border-top right below -- two overlapping
+     semi-transparent lines reading darker than either alone, which is
+     why lightening just the Text Samples side wasn't enough. Drop
+     this side entirely so the (already-lightened) line below is the
+     only one. */
+  border-bottom: none;
+
+  /* Stays put while Text Samples scrolls up over it, so the section
+     boundary reads as one layer sliding under the next instead of a
+     hard cut. Both .text-samples sections now carry their own opaque
+     background + z-index:1 (base rule, not just the first one) so
+     nothing after this point can show it through again regardless of
+     how long the sticky hold lasts. */
+  position: sticky;
+  top: 0;
+  z-index: 0;
+}
+
+/* Higher specificity than the plain .ligature-showcase-inverse rule
+   above, so it wins over this section's own #999999 background
+   regardless of source order. */
+.ligature-showcase-zoomed.ligature-showcase-inverse {
+  background: var(--foreground);
+
+  color: var(--background);
+}
+
+.ligature-showcase-zoomed .ligature-showcase-word-long {
+  font-size:
+    clamp(88px, 14.3vw, 286px);
+
+  /* Keep each phrase on the single line it had at normal size -- the
+     bigger font would otherwise wrap it onto a second line. Let it
+     overflow horizontally instead; the section's overflow:hidden
+     crops it the same way it already crops top and bottom. */
+  width: auto;
+
+  white-space: nowrap;
+}
+
+/* ----------------------------------------------------------------------
+   CURSOR-FOLLOWING FOCUS EFFECT (ligature-showcase-zoomed)
+   Two identical copies of the same four words are stacked: the real one
+   underneath stays permanently soft/atmospheric (blur + reduced opacity
+   + a faint glow, not a flat CSS blur), and a JS-cloned, aria-hidden
+   copy sits on top at full sharpness, revealed only through a soft
+   circular mask that follows the pointer with eased inertia (see
+   script.js). Where the mask fades to transparent, the sharp layer
+   fades out and the blurred layer shows through -- that gradient IS
+   the wide sharp/blurred transition, no hard edge is drawn anywhere.
+
+   Adjustable variables (all on .ligature-showcase-zoomed):
+     --focus-blur      default atmospheric blur amount
+     --focus-radius     focus circle size (px)
+     --focus-core       inner fully-sharp portion of the radius (0-100%)
+   Mouse-follow lag and the return-to-rest speed are JS constants,
+   labeled where they're used in script.js (FOCUS_LAG / FOCUS_RELEASE_LAG).
+------------------------------------------------------------------------- */
+
+.ligature-showcase-zoomed {
+  --focus-blur: 7px;
+  --focus-radius: 260px;
+  --focus-core: 22%;
+}
+
+.ligature-showcase-zoomed .ligature-showcase-word-long {
+  opacity: 0.6;
+
+  filter: blur(var(--focus-blur));
+
+  transition: filter 900ms ease, opacity 900ms ease;
+}
+
+/* Fine film-grain over the whole effect (both the blurred base and the
+   sharp reveal) so it reads as a deliberately textured, precise surface
+   rather than a smooth CSS gradient/blur. Sits above both text layers
+   via z-index; mix-blend-mode lets it read through without flattening
+   the type underneath into gray. */
+.ligature-showcase-zoomed::after {
+  content: "";
+
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 2;
+
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+  background-size: 180px 180px;
+
+  opacity: 0.5;
+
+  mix-blend-mode: overlay;
+
+  pointer-events: none;
+}
+
+.ligature-focus-overlay {
+  position: absolute;
+
+  inset: 0;
+
+  z-index: 1;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+
+  justify-content: center;
+
+  gap: 20px;
+
+  padding:
+    clamp(60px, 10vw, 140px)
+    var(--page-margin);
+
+  opacity: 0;
+
+  pointer-events: none;
+
+  -webkit-mask-image:
+    radial-gradient(
+      circle var(--focus-radius) at var(--focus-x, 50%) var(--focus-y, 50%),
+      #000 var(--focus-core),
+      transparent 100%
+    );
+  mask-image:
+    radial-gradient(
+      circle var(--focus-radius) at var(--focus-x, 50%) var(--focus-y, 50%),
+      #000 var(--focus-core),
+      transparent 100%
+    );
+
+  transition: opacity 700ms ease;
+}
+
+.ligature-focus-overlay.is-active {
+  /* Below 1: the revealed sharp text stays a little short of full
+     brightness/contrast against the dim blurred backdrop, so the
+     reveal reads as "in focus" rather than as a bright spotlight. */
+  opacity: 0.8;
+}
+
+.ligature-focus-overlay .ligature-showcase-word {
+  width: auto;
+
+  margin: 0;
+
+  font-size: clamp(88px, 14.3vw, 286px);
+
+  font-weight: 400;
+
+  line-height: 1.1;
+
+  text-align: center;
+
+  letter-spacing: -0.02em;
+
+  white-space: nowrap;
+
+  /* Same selector chain/specificity as the blurred base rule above
+     (.ligature-showcase-zoomed .ligature-showcase-word-long) -- these
+     clones ARE also descendants of .ligature-showcase-zoomed, so
+     without this explicit reset they'd inherit its blur/opacity/glow
+     too. Force them back to fully sharp; the mask is what hides/
+     reveals them, not their own filter state. */
+  opacity: 1;
+
+  filter: none;
+
+  text-shadow: none;
+
+  transition: none;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ligature-showcase-zoomed .ligature-showcase-word-long {
+    /* Lighter, static blur -- legible without needing the pointer, and
+       the JS skips the animated follow/lag entirely in this mode. */
+    opacity: 0.8;
+
+    filter: blur(calc(var(--focus-blur) * 0.4));
+  }
+
+  .ligature-focus-overlay {
+    transition: none;
+  }
+}
+
+
+/* ========================================
+   OPENTYPE FEATURES
+======================================== */
+
+.opentype-features {
+  padding-top: 16px;
+}
+
+/* Same heading treatment as "Buy Formae" / "More typefaces" /
+   "Licensing options" / "Character Set", including their 20px gap to
+   whatever comes next. */
+.opentype-features-title {
+  margin: 0 var(--page-margin) 20px;
+
+  font-family: var(--descriptive-font);
+  font-size: var(--h1-size);
+}
+
+.feature-grid {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns: 1fr 1fr;
+
+  /* The line under the "OpenType Features" heading, separating it
+     from the card grid below. */
+  border-top: var(--border);
+}
+
+.feature-grid::after {
+  content: "";
+
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+.feature-card {
+  container-type: inline-size;
+
+  min-width: 0;
+
+  padding:
+    36px
+    var(--page-margin);
+
+  padding-top: 16px;
+
+  border-bottom:
+    var(--border);
+}
+
+.feature-label {
+  display: flex;
+
+  justify-content: space-between;
+
+  margin-bottom: 24px;
+
+  color: #555;
+
+  font-size: 12px;
+
+  letter-spacing: 0.02em;
+}
+
+.feature-demo {
+  display: flex;
+
+  align-items: baseline;
+
+  gap: clamp(14px, 2.2cqw, 28px);
+
+  font-size: clamp(24px, 8cqw, 80px);
+
+  line-height: 1;
+
+  letter-spacing: normal;
+
+  font-kerning: normal;
+}
+
+.feature-demo > span:first-child {
+  color: rgba(0, 0, 0, 0.4);
+}
+
+.feature-arrow {
+  align-self: center;
+
+  font-size: 0.6em;
+
+  opacity: 0.35;
+}
+
+.feature-after {
+  color: var(--foreground);
+}
+
+.feature-liga {
+  font-variant-ligatures: common-ligatures discretionary-ligatures;
+  font-feature-settings: "liga" 1, "dlig" 1;
+}
+
+/* ELLIOTT (2nd Text Samples hero word) only -- centered within the
+   same left/right page-margin the box already has, top spacing
+   unchanged. */
+.text-sample-hero-6x-centered {
+  text-align: center;
+}
+
+/* The circled-digits replacement for "Sauvignon has the right to
+   breathe" -- 10x the shared .text-sample-hero p size (same clamp
+   shape, each number x10) and centered instead of left-aligned. */
+.text-sample-hero p.text-sample-hero-circled-large {
+  font-size: min(200cqmin, 2000px);
+
+  text-align: center;
+}
+
+.feature-onum {
+  font-variant-numeric: oldstyle-nums;
+  font-feature-settings: "onum" 1;
+}
+
+.feature-ss01 {
+  font-variant-alternates: styleset(1);
+  font-feature-settings: "ss01" 1, "kern" 1;
+}
+
+.feature-badge {
+  display: inline-flex;
+
+  align-items: center;
+  justify-content: center;
+
+  width: 1.3em;
+  height: 1.3em;
+
+  border-radius: 50%;
+
+  color: var(--background);
+  background: var(--foreground);
+
+  font-size: 0.82em;
+}
+
+.feature-badge-group {
+  display: inline-flex;
+
+  gap: 0.18em;
+
+  background: none;
+}
+
+@media (max-width: 650px) {
+  .feature-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .feature-grid::after {
+    display: none;
+  }
+}
+
+
+/* ========================================
+   SUPPORTED LANGUAGES
+======================================== */
+
+.supported-languages {
+  padding:
+    16px
+    var(--page-margin)
+    var(--section-space)
+    var(--page-margin);
+
+  border-bottom:
+    var(--border);
+}
+
+.supported-languages p {
+  max-width: 1400px;
+
+  margin: 0;
+
+  font-size:
+    clamp(32px, 5vw, 84px);
+
+  line-height: 1;
+
+  letter-spacing: -0.025em;
+
+  overflow-wrap: anywhere;
+}
+
+
+/* ========================================
+   ABOUT
+======================================== */
+
+.about-typeface {
+  position: relative;
+
+  display: grid;
+
+  grid-template-columns:
+    1fr 1fr;
+
+  min-height:
+    clamp(560px, 60vw, 1000px);
+
+  padding:
+    var(--section-space)
+    var(--page-margin);
+
+  border-top:
+    var(--border);
+
+  border-bottom:
+    var(--border);
+}
+
+
+.about-divider {
+  position: absolute;
+
+  left: 50%;
+  top: 0;
+  bottom: 0;
+
+  width: 1px;
+
+  background: rgba(0, 0, 0, 0.45);
+}
+
+
+.about-title {
+  display: flex;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+
+  font-size:
+    clamp(132px, 22vw, 440px);
+
+  line-height: 0.7;
+
+  letter-spacing: -0.06em;
+}
+
+
+.about-copy {
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: center;
+  justify-content: center;
+
+  text-align: center;
+}
+
+
+.about-copy p {
+  margin: 0;
+
+  max-width: 620px;
+
+  font-size:
+    clamp(24px, 3.2vw, 60px);
+
+  line-height: 1.3;
+
+  letter-spacing: -0.035em;
+}
+
+
+.about-typeface-inverse {
+  /* The one gap value between the boxes -- side by side on desktop,
+     stacked on narrow screens. Also reused below for the spacing
+     between back-to-back About sections, so the two always match. */
+  --about-box-gap: clamp(16px, 2vw, 32px);
+
+  gap: var(--about-box-gap);
+
+  /* Height comes from the (now square) boxes themselves, not this
+     fixed clamp -- min-height:0 so nothing here fights their
+     aspect-ratio-driven height. */
+  min-height: 0;
+
+  /* Top and bottom gap both match --page-margin (the same value
+     already used for the left/right edges here and everywhere else
+     on the page), instead of inheriting the base section's much
+     taller --section-space padding. */
+  padding-top: var(--page-margin);
+  padding-bottom: var(--page-margin);
+
+  border-top: 0;
+}
+
+.about-typeface-inverse .about-title,
+.about-typeface-inverse .about-copy {
+  aspect-ratio: 1;
+
+  background: var(--foreground);
+
+  color: var(--background);
+
+  border-radius: clamp(16px, 2vw, 32px);
+}
+
+.about-typeface-inverse .about-title {
+  position: relative;
+}
+
+.about-typeface-inverse .about-copy {
+  overflow: hidden;
+}
+
+.about-typeface-inverse .about-copy img {
+  display: block;
+
+  width: 100%;
+  height: 100%;
+
+  object-fit: cover;
+}
+
+/* Back-to-back About Font Black sections read as one continuous grid of
+   boxes: no divider line between them, and the space between the two
+   sections is the same --about-box-gap that separates the boxes within
+   a section, instead of two page-margin paddings plus a 1px line. The
+   upper section gives up its bottom padding and line; the lower one
+   swaps its top page-margin padding for the box gap. Hidden sections
+   are display:none but still adjacent siblings, so they're excluded. */
+.about-typeface-inverse:not([hidden]):has(+ .about-typeface-inverse:not([hidden])) {
+  padding-bottom: 0;
+  border-bottom: 0;
+}
+
+.about-typeface-inverse:not([hidden]) + .about-typeface-inverse:not([hidden]) {
+  padding-top: var(--about-box-gap);
+}
+
+
+/* ========================================
+   BUY FORMAE
+   Weight-by-weight purchase table, modeled on hungarumlaut.com's
+   typeface buy section (a license blurb, then one row per weight with
+   a price and an add-to-cart action).
+======================================== */
+
+.buy-font {
+  padding: clamp(48px, 8vw, 96px) var(--page-margin);
+
+  border-bottom: var(--border);
+}
+
+.buy-font-title {
+  /* Same heading-to-next-row gap as "Licensing options" below. */
+  margin: 0 0 20px;
+
+  font-family: var(--descriptive-font);
+  font-size: var(--h1-size);
+}
+
+.buy-font-license {
+  max-width: 560px;
+
+  margin-bottom: 32px;
+}
+
+.buy-font-license span {
+  display: inline-block;
+
+  margin-bottom: 8px;
+
+  font-family: var(--descriptive-font);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.buy-font-license p {
+  margin: 0;
+
+  color: #555;
+  font-family: var(--descriptive-font);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.buy-font-table {
+  border-top: var(--border);
+}
+
+.buy-font-row {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  align-items: center;
+  gap: 24px;
+
+  padding: 14px 0;
+
+  border-bottom: var(--border);
+}
+
+.buy-font-row-bold .buy-font-name {
+  font-weight: 700;
+}
+
+.buy-font-name {
+  font-family: var(--descriptive-font);
+  font-size: 15px;
+}
+
+.buy-font-price {
+  font-family: var(--descriptive-font);
+  font-size: 14px;
+  color: #555;
+}
+
+.buy-font-add {
+  color: var(--foreground);
+  text-decoration: none;
+
+  padding: 6px 14px;
+
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 999px;
+
+  font-family: var(--descriptive-font);
+  font-size: 13px;
+
+  transition: background-color 150ms ease, color 150ms ease;
+}
+
+.buy-font-add:hover {
+  background: var(--foreground);
+  color: var(--background);
+}
+
+@media (max-width: 650px) {
+  .buy-font-row {
+    grid-template-columns: 1fr auto;
+    grid-template-areas:
+      "name add"
+      "price add";
+    row-gap: 4px;
+  }
+
+  .buy-font-name { grid-area: name; }
+  .buy-font-price { grid-area: price; }
+  .buy-font-add { grid-area: add; }
+}
+
+.buy-font-checkout-note {
+  display: flex;
+  justify-content: space-between;
+
+  margin-top: 16px;
+
+  font-family: var(--descriptive-font);
+  font-size: 12px;
+  color: #777;
+}
+
+.buy-font-checkout-note a {
+  color: inherit;
+}
+
+.buy-font-licensing {
+  margin-top: 56px;
+
+  padding-top: 32px;
+
+  border-top: var(--border);
+}
+
+/* Matches the "Buy Formae" / "More typefaces" heading treatment. */
+.buy-font-licensing h3 {
+  margin: 0 0 20px;
+
+  font-family: var(--descriptive-font);
+  font-size: var(--h1-size);
+}
+
+.buy-font-license-tier {
+  max-width: 560px;
+
+  margin-bottom: 20px;
+}
+
+.buy-font-license-tier span {
+  display: block;
+
+  margin-bottom: 4px;
+
+  font-family: var(--descriptive-font);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.buy-font-license-tier p {
+  margin: 0;
+
+  color: #555;
+  font-family: var(--descriptive-font);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.buy-font-licensing-footnote {
+  max-width: 560px;
+
+  margin: 8px 0 0;
+
+  color: #777;
+  font-family: var(--descriptive-font);
+  font-size: 12px;
+  line-height: 1.5;
+}
+
+
+/* ========================================
+   MORE TYPEFACES
+======================================== */
+
+.more-fonts {
+  padding: clamp(48px, 8vw, 96px) var(--page-margin);
+
+  border-bottom: var(--border);
+}
+
+.more-fonts-title {
+  /* Same heading-to-next-row gap as "Licensing options". */
+  margin: 0 0 20px;
+
+  font-family: var(--descriptive-font);
+  font-size: var(--h1-size);
+}
+
+.more-fonts-grid {
+  display: grid;
+
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.more-fonts-box {
+  position: relative;
+
+  min-width: 0;
+  min-height: clamp(300px, 30vw, 480px);
+
+  padding: clamp(18px, 2vw, 32px);
+
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+
+  color: inherit;
+  text-decoration: none;
+
+  background: #e9e9e4;
+
+  border-radius: clamp(16px, 1.6vw, 28px);
+
+  overflow: hidden;
+
+  transition: color 180ms ease, background-color 180ms ease;
+}
+
+.more-fonts-box:hover,
+.more-fonts-box:focus-visible {
+  color: var(--background);
+  background: var(--foreground);
+  outline: 0;
+}
+
+.more-fonts-name {
+  margin-bottom: 4px;
+
+  font-family: var(--descriptive-font);
+  font-size: 16px;
+  font-weight: 600;
+}
+
+.more-fonts-details {
+  font-family: var(--descriptive-font);
+  color: #555;
+  font-size: 12px;
+}
+
+.more-fonts-aa {
+  margin-top: auto;
+
+  font-size: clamp(70px, 8vw, 140px);
+  font-weight: 600;
+  line-height: 0.7;
+  letter-spacing: -0.055em;
+}
+
+.more-fonts-box-relay .more-fonts-aa {
+  font-family: "MS Relay Sans", "Inter Variable", Arial, sans-serif;
+}
+
+.more-fonts-box-circa .more-fonts-aa {
+  font-family: "MS Circa Sans", "Inter Variable", Arial, sans-serif;
+}
+
+.more-fonts-box-cikkcakk .more-fonts-aa {
+  font-family: "MS Cikk Cakk", "Inter Variable", Arial, sans-serif;
+}
+
+.more-fonts-box-goufi .more-fonts-aa {
+  font-family: "MS Goufi", "Inter Variable", Arial, sans-serif;
+  font-weight: 700;
+}
+
+.more-fonts-status {
+  position: absolute;
+  top: 14px;
+  right: 14px;
+
+  padding: 5px 10px;
+
+  color: var(--foreground);
+
+  background: #fbb040;
+
+  border: 1px solid #fbb040;
+  border-radius: 999px;
+
+  font-family: var(--descriptive-font);
+  font-size: 12px;
+}
+
+@media (max-width: 900px) {
+  .more-fonts-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 450px) {
+  .more-fonts-grid {
+    grid-template-columns: 1fr;
+  }
+
+  /* One full-width card per row: the 300px floor of the base rule is
+     just empty space here. */
+  .more-fonts-box {
+    min-height: 200px;
+  }
+}
+
+
+/* ========================================
+   CTA
+======================================== */
+
+.cta {
+  min-height: 85svh;
+
+  padding:
+    var(--page-margin);
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  border-bottom:
+    var(--border);
+}
+
+
+.cta span {
+  color: #555;
+
+  font-size: 12px;
+}
+
+
+.cta a {
+  color: inherit;
+
+  text-decoration: none;
+
+  font-size:
+    clamp(72px, 12vw, 220px);
+
+  line-height: 0.84;
+
+  letter-spacing: -0.055em;
+}
+
+
+/* ========================================
+   TABLET
+======================================== */
+
+@media (max-width: 1000px) {
+
+  .tester-controls {
+    grid-template-columns:
+      1fr 1fr;
+  }
+
+}
+
+
+@media (max-width: 900px) {
+
+  .kerning-toolbar {
+    grid-template-columns:
+      repeat(2, minmax(0, 1fr));
+  }
+
+  .about-typeface {
+    grid-template-columns: 1fr;
+  }
+
+  .about-divider {
+    display: none;
+  }
+
+}
+
+
+/* ========================================
+   MOBILE
+======================================== */
+
+@media (max-width: 650px) {
+
+  :root {
+    --section-space: 56px;
+  }
+
+
+  .kerning-toolbar {
+    padding:
+      16px
+      var(--page-margin)
+      28px;
+
+    grid-template-columns: 1fr;
+
+    gap: 22px;
+  }
+
+
+  .kerning-source {
+    margin-bottom: 18px;
+
+    font-size: 16px;
+  }
+
+
+  .kerning-glyphs {
+    padding-bottom: 56px;
+  }
+
+
+  .kerning-glyph {
+    width:
+      calc(var(--kerning-cell-width, 64) * 1px);
+
+    height:
+      calc(var(--kerning-font-size, 84) * 1px + 34px);
+  }
+
+
+  .kerning-glyph-character {
+    font-size:
+      calc(var(--kerning-font-size, 84) * 1px);
+  }
+
+  .tester-controls {
+    grid-template-columns: 1fr;
+
+    gap: 18px;
+  }
+
+
+  .tester {
+    min-height: 220px;
+
+    line-height: 1.2;
+  }
+
+  .tester-medium {
+    min-height: 0;
+  }
+
+
+  .tester-section {
+    grid-template-columns: 1fr;
+  }
+
+
+  .tester-unit,
+  .tester-unit:nth-child(-n + 1) {
+    grid-column: auto;
+  }
+
+
+  .tester-unit:nth-child(2),
+  .tester-unit:nth-child(4),
+  .tester-unit:nth-child(5) {
+    border-right: 0;
+  }
+
+
+  .tester-unit:nth-child(6) {
+    grid-column: auto;
+    grid-row: auto;
+  }
+
+
+  .specimen {
+    padding:
+      var(--page-margin)
+      var(--page-margin);
+  }
+
+
+  .specimen-label {
+    margin-bottom: 18px;
+  }
+
+
+  .specimen-text,
+  .pictogram-specimen {
+    font-size:
+      clamp(42px, 15vw, 64px);
+  }
+
+
+  .specimen-text:not(.pictogram-specimen) {
+    height: 84px;
+
+    padding-bottom: 10px;
+  }
+
+
+  .display-block {
+    min-height:
+      clamp(220px, 26svh, 300px);
+
+    padding:
+      var(--page-margin)
+      var(--page-margin)
+      28px;
+  }
+
+
+  .display-large {
+    font-size:
+      clamp(118px, 43vw, 190px);
+  }
+
+
+  /* Text Samples / Type Samples 2 deliberately have NO phone override
+     any more: they stay the same two-column poster at every width and
+     simply scale down (see --u), instead of stacking into one column
+     with different box proportions, a fixed-px height floor and fixed
+     px glyph sizes -- which is what cropped the big glyphs. */
+
+
+  .character-browser {
+    grid-template-columns: 1fr;
+  }
+
+
+  .character-preview {
+    z-index: 2;
+    border-bottom: var(--border);
+    background: var(--background);
+  }
+
+
+  .character-preview span {
+    font-size: inherit;
+  }
+
+
+  .metric {
+    left: 16px;
+    right: 16px;
+    font-size: 9px;
+  }
+
+
+  .character-list {
+    border-left: 0;
+  }
+
+
+  .character-grid span {
+    padding: 10px;
+
+    font-size:
+      clamp(22px, 7vw, 32px);
+  }
+
+
+  .supported-languages p {
+    font-size:
+      clamp(24px, 7.5vw, 34px);
+  }
+
+
+  .about-typeface {
+    gap: 40px;
+  }
+
+  /* Keep the About sections' shared box-gap variable in step with the
+     40px gap set just above. */
+  .about-typeface-inverse {
+    --about-box-gap: 40px;
+  }
+
+
+  .about-copy p {
+    font-size:
+      clamp(24px, 7.5vw, 34px);
+  }
+
+
+  .cta a {
+    font-size:
+      clamp(48px, 15vw, 72px);
+  }
+
+
+}
+
+
+/* ========================================
+   THREE-VIEW RESPONSIVE SYSTEM — SITE
+======================================== */
+
+html,
+body {
+  max-width: 100%;
+  overflow-x: clip;
+}
+
+img,
+svg,
+video,
+canvas {
+  max-width: 100%;
+}
+
+.nav a {
+  min-height: 44px;
+  display: inline-flex;
+  align-items: center;
+}
+
+.control,
+.control input[type="range"] {
+  min-width: 0;
+}
+
+@media (min-width: 651px) and (max-width: 900px) {
+  :root {
+    --page-margin: clamp(16px, 2.2vw, 36px);
+    --section-space: clamp(72px, 10vw, 112px);
+  }
+
+  .header {
+    padding: 12px var(--page-margin);
+  }
+
+  .nav {
+    gap: clamp(14px, 2.6vw, 28px);
+  }
+
+  .kerning-toolbar {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px;
+  }
+
+  /* No tablet override for the Type Tester grid or for the Text
+     Samples / Type Samples 2 grids: Type Tester 02/03 keep their side
+     by side layout (it only collapses to one column on a phone, below)
+     and the specimen blocks never stack at all -- both just scale down,
+     so a box that shrinks keeps its proportions and it is the text
+     inside that changes size. */
+
+  .tester-controls,
+  .tester-unit:nth-child(n + 2) .tester-controls {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 18px 28px;
+  }
+
+  .tester {
+    min-height: clamp(280px, 55vw, 540px);
+    padding: clamp(30px, 5vw, 56px) var(--page-margin);
+  }
+
+  .tester-medium {
+    min-height: 0;
+  }
+
+  .character-browser {
+    grid-template-columns: 1fr;
+  }
+
+  .character-preview {
+    position: relative;
+    height: 56svh;
+    border-bottom: var(--border);
+  }
+
+  .character-list {
+    border-left: 0;
+  }
+
+  .about-typeface {
+    grid-template-columns: 1fr;
+  }
+
+  .about-title {
+    font-size: clamp(110px, 25vw, 230px);
+  }
+
+  .cta {
+    min-height: 50svh;
+  }
+}
+
+@media (max-width: 650px) {
+  :root {
+    --page-margin: clamp(16px, 2.2vw, 36px);
+    --section-space: 56px;
+  }
+
+  .header {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    align-items: start;
+  }
+
+  .brand {
+    font-size: 16px;
+  }
+
+  .nav {
+    width: 100%;
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    gap: 4px 12px;
+    text-align: left;
+  }
+
+  .nav a {
+    min-height: 32px;
+    font-size: 12px;
+  }
+
+  .kerning-toolbar {
+    grid-template-columns: 1fr;
+  }
+
+  .tester-controls,
+  .tester-unit:nth-child(n + 2) .tester-controls {
+    grid-template-columns: 1fr;
+    gap: 16px;
+  }
+
+  .control {
+    grid-template-columns: 64px minmax(0, 1fr) 58px;
+    gap: 8px;
+  }
+
+  .control label,
+  .control span {
+    margin: 0;
+    padding: 0;
+  }
+
+  .tester {
+    min-height: 220px;
+    padding: 26px var(--page-margin);
+    overflow: hidden;
+  }
+
+  .tester-medium {
+    min-height: 0;
+  }
+
+  .specimen {
+    overflow: hidden;
+
+    /* The base rule's clamp(320px, 40vw, 550px) bottoms out at 320px, so
+       each ~64px phone-size word floated in a box five times its height. */
+    min-height: 200px;
+  }
+
+  .character-preview {
+    position: relative;
+    height: 42svh;
+  }
+
+  .character-list {
+    grid-template-columns: repeat(auto-fit, minmax(56px, 1fr));
+  }
+
+  .supported-languages p,
+  .about-copy p {
+    overflow-wrap: anywhere;
+  }
+
+  .about-title {
+    font-size: clamp(72px, 24vw, 108px);
+  }
+
+  .cta {
+    min-height: 44svh;
+  }
+
+  .cta a {
+    overflow-wrap: anywhere;
+  }
+}
+
+
+.header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  min-height: auto;
+  padding: 18px var(--page-margin);
+  background: rgba(245, 245, 240, 0.94);
+  backdrop-filter: blur(10px);
+}
+
+main > section {
+  scroll-margin-top: 54px;
+}
+
+@media (min-width: 901px) {
+  html {
+    scrollbar-gutter: stable;
+    scroll-padding-top: 54px;
+  }
+
+  body {
+    overscroll-behavior-y: none;
+  }
+
+  .header {
+    background: var(--background);
+    backdrop-filter: none;
+  }
+}
+
+@media (max-width: 650px) {
+  .header {
+    min-height: auto;
+    padding: 18px var(--page-margin);
+  }
+}
+
+
+/* Responsive content sizing safety */
+.tester-unit {
+  min-width: 0;
+  overflow: hidden;
+}
+
+.tester {
+  max-width: 100%;
+  overflow-wrap: anywhere;
+}
+
+
+/* ========================================
+   FORMAE — REGULAR ONLY
+   Only Regular is in active use — force every element to that weight so
+   nothing triggers synthetic/faux bold (weight sliders, weight-swatch
+   demo, etc. all get overridden here too). Remove this block if/when
+   other weights should actually be used on the page.
+======================================== */
+
+* {
+  font-weight: 400 !important;
+}
+
+
+/* ========================================
+   SECTION REORDER PANEL
+======================================== */
+
+.section-reorder-panel {
+  position: fixed;
+
+  right: 16px;
+  bottom: 16px;
+
+  z-index: 50;
+
+  display: flex;
+
+  flex-direction: column;
+
+  align-items: flex-end;
+
+  gap: 8px;
+
+  font-family: "Inter Variable", Arial, Helvetica, sans-serif;
+
+  font-size: 12px;
+}
+
+.section-reorder-toggle {
+  padding: 10px 14px;
+
+  cursor: pointer;
+
+  color: var(--foreground);
+  background: var(--background);
+
+  border: var(--border);
+  border-radius: 999px;
+
+  font: inherit;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.section-reorder-toggle:hover {
+  color: var(--background);
+  background: var(--foreground);
+}
+
+.section-reorder-body {
+  width: 240px;
+
+  max-height: 70vh;
+
+  overflow-y: auto;
+
+  padding: 14px;
+
+  background: var(--background);
+
+  border: var(--border);
+  border-radius: 10px;
+
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.12);
+}
+
+.section-reorder-heading {
+  margin-bottom: 10px;
+
+  color: rgba(0, 0, 0, 0.55);
+
+  letter-spacing: 0.02em;
+}
+
+.section-reorder-list {
+  display: flex;
+
+  flex-direction: column;
+
+  gap: 6px;
+
+  margin: 0 0 12px;
+
+  padding: 0;
+
+  list-style: none;
+}
+
+.section-reorder-item {
+  display: flex;
+
+  align-items: center;
+
+  gap: 8px;
+
+  padding: 8px 10px;
+
+  background: var(--background);
+
+  border: var(--border);
+  border-radius: 6px;
+
+  line-height: 1.3;
+
+  user-select: none;
+}
+
+.section-reorder-handle {
+  cursor: grab;
+
+  color: rgba(0, 0, 0, 0.4);
+
+  flex: 0 0 auto;
+}
+
+.section-reorder-label {
+  flex: 1 1 auto;
+
+  cursor: pointer;
+}
+
+.section-reorder-item-selected {
+  background: rgba(0, 0, 0, 0.08);
+
+  border-color: rgba(0, 0, 0, 0.4);
+}
+
+/* Marks whichever row's section the pointer is currently over on the
+   page itself -- distinct from -selected (a click-based pick) since
+   several rows can share the same auto-derived label and this is the
+   only way to tell them apart at a glance. */
+.section-reorder-item-page-hover {
+  background: rgba(251, 176, 64, 0.18);
+
+  border-color: #fbb040;
+}
+
+.section-reorder-eye {
+  flex: 0 0 auto;
+
+  padding: 0;
+
+  cursor: pointer;
+
+  color: var(--foreground);
+  background: none;
+
+  border: 0;
+
+  font-size: 13px;
+  line-height: 1;
+}
+
+.section-reorder-eye-hidden {
+  opacity: 0.3;
+}
+
+.section-reorder-item-hidden .section-reorder-label {
+  color: rgba(0, 0, 0, 0.4);
+
+  text-decoration: line-through;
+}
+
+.section-reorder-item-dragging {
+  opacity: 0.4;
+}
+
+.section-reorder-reset {
+  width: 100%;
+
+  padding: 8px 10px;
+
+  cursor: pointer;
+
+  color: var(--foreground);
+  background: var(--background);
+
+  border: var(--border);
+  border-radius: 6px;
+
+  font: inherit;
+}
+
+.section-reorder-reset:hover {
+  color: var(--background);
+  background: var(--foreground);
+}
+
+@media print {
+  .section-reorder-panel {
+    display: none;
+  }
+}
+
+
+/* ========================================
+   DESIGN MODE
+   Dev-only visual box-model inspector: click any element to see its
+   margin/padding/font-size as editable fields, then Copy CSS to grab
+   the exact values back out. Not part of the site's real design.
+======================================== */
+
+.design-mode-toggle {
+  position: fixed;
+  left: 16px;
+  bottom: 16px;
+  z-index: 9999;
+
+  padding: 8px 14px;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+
+  color: #111;
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.3);
+  border-radius: 999px;
+
+  cursor: pointer;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.15);
+}
+
+.design-mode-toggle.is-on {
+  color: #fff;
+  background: #111;
+}
+
+.design-mode-outline {
+  position: absolute;
+  z-index: 9998;
+  pointer-events: none;
+  box-sizing: border-box;
+}
+
+.design-mode-outline-hover {
+  outline: 1px dashed rgba(0, 122, 255, 0.6);
+  background: rgba(0, 122, 255, 0.06);
+}
+
+.design-mode-outline-selected {
+  outline: 2px solid #007aff;
+}
+
+.design-mode-panel {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9999;
+
+  width: 260px;
+
+  padding: 14px;
+
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  font-size: 12px;
+  color: #111;
+
+  background: #fff;
+  border: 1px solid rgba(0, 0, 0, 0.15);
+  border-radius: 10px;
+
+  box-shadow: 0 8px 30px rgba(0, 0, 0, 0.2);
+}
+
+.design-mode-panel-title {
+  margin-bottom: 10px;
+
+  font-weight: 600;
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  word-break: break-all;
+}
+
+.design-mode-panel-subtitle {
+  margin: 12px 0 8px;
+  padding-top: 10px;
+
+  color: rgba(17, 17, 17, 0.55);
+  font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+
+  border-top: 1px dashed rgba(0, 0, 0, 0.15);
+
+  word-break: break-all;
+}
+
+.design-mode-group {
+  margin-bottom: 10px;
+}
+
+.design-mode-group-label {
+  margin-bottom: 4px;
+
+  color: rgba(17, 17, 17, 0.55);
+}
+
+.design-mode-row {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 4px;
+}
+
+.design-mode-field {
+  display: flex;
+  align-items: center;
+  gap: 3px;
+
+  padding: 3px 4px;
+
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.design-mode-field span {
+  color: rgba(17, 17, 17, 0.45);
+}
+
+.design-mode-field input {
+  width: 100%;
+  min-width: 0;
+
+  border: 0;
+  outline: none;
+
+  font-size: 12px;
+
+  -moz-appearance: textfield;
+}
+
+.design-mode-group > input[type="number"] {
+  width: 100%;
+
+  padding: 5px 7px;
+
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+}
+
+.design-mode-text {
+  width: 100%;
+
+  padding: 6px 7px;
+
+  font-family: inherit;
+  font-size: 12px;
+
+  color: #111;
+
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+
+  resize: vertical;
+}
+
+.design-mode-align-btn {
+  padding: 5px 4px;
+
+  color: rgba(17, 17, 17, 0.65);
+
+  font-size: 11px;
+  font-family: inherit;
+
+  background: transparent;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+
+  cursor: pointer;
+}
+
+.design-mode-align-btn.is-active {
+  color: #fff;
+
+  background: #007aff;
+  border-color: #007aff;
+}
+
+.design-mode-copy {
+  width: 100%;
+
+  padding: 8px;
+
+  font-size: 12px;
+
+  color: #fff;
+  background: #007aff;
+  border: 0;
+  border-radius: 6px;
+
+  cursor: pointer;
+}
+
+
+/* ========================================
+   FOOTER
+======================================== */
+
+.site-footer {
+  background: var(--foreground);
+  color: var(--background);
+
+  font-family: "Inter Variable", Arial, Helvetica, sans-serif;
+}
+
+.footer-newsletter {
+  display: flex;
+
+  flex-wrap: wrap;
+
+  justify-content: space-between;
+  align-items: flex-start;
+
+  gap: 24px;
+
+  padding: 64px var(--page-margin) 40px;
+}
+
+.footer-newsletter h2 {
+  max-width: 480px;
+  margin: 0;
+
+  font-size: var(--h1-size);
+  font-weight: 500;
+
+  letter-spacing: -0.02em;
+}
+
+.footer-newsletter-signup {
+  display: flex;
+
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 14px;
+
+  max-width: 280px;
+}
+
+.footer-newsletter-signup p {
+  margin: 0;
+
+  color: rgba(245, 245, 240, 0.65);
+
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.footer-newsletter-button {
+  padding: 10px 18px;
+
+  color: var(--foreground);
+  text-decoration: none;
+
+  background: var(--background);
+
+  border-radius: 100px;
+
+  font-size: 13px;
+  font-weight: 500;
+
+  transition: opacity 150ms ease;
+}
+
+.footer-newsletter-button:hover {
+  opacity: 0.8;
+}
+
+.footer-divider {
+  margin: 0 var(--page-margin);
+
+  border-top: 1px dotted rgba(245, 245, 240, 0.3);
+}
+
+.footer-columns {
+  display: grid;
+
+  grid-template-columns: 1.4fr 1fr 1fr;
+
+  gap: 24px;
+
+  padding: 40px var(--page-margin);
+}
+
+.footer-tagline {
+  max-width: 320px;
+  margin: 0;
+
+  color: rgba(245, 245, 240, 0.65);
+
+  font-size: 14px;
+  line-height: 1.5;
+}
+
+.footer-sitemap {
+  display: flex;
+
+  flex-direction: column;
+  align-items: flex-start;
+
+  gap: 10px;
+}
+
+.footer-sitemap a {
+  color: inherit;
+  text-decoration: none;
+
+  font-size: 13px;
+}
+
+.footer-sitemap a:hover {
+  text-decoration: underline;
+}
+
+.footer-copyright {
+  color: rgba(245, 245, 240, 0.65);
+
+  font-size: 13px;
+  text-align: right;
+}
+
+@media (max-width: 650px) {
+  .footer-columns {
+    grid-template-columns: 1fr;
+
+    gap: 24px;
+  }
+
+  .footer-copyright {
+    text-align: left;
+  }
+}
+
+.variable-footer {
+  min-height: 55svh;
+
+  padding: 0;
+
+  display: flex;
+
+  flex-direction: column;
+
+  justify-content: space-between;
+
+  overflow: hidden;
+
+  font-size: 12px;
+
+  cursor: crosshair;
+
+  /* Makes cqw below mean "1% of this box's width", so the word spans the
+     footer exactly, whatever the viewport or a scrollbar takes away. */
+  container-type: inline-size;
+}
+
+.footer-word-crop {
+  width: 100%;
+
+  overflow: visible;
+
+  /* .variable-footer used to be a 2-item flex column (this + the now-
+     removed Weight/Slant readout) with justify-content:space-between
+     pinning this to the bottom. With only this one child left,
+     space-between has nothing to distribute -- margin-top:auto gets
+     the same bottom-pinned result on its own. */
+  margin-top: auto;
+
+  /* Sized so "MORPHY©" fits the width with the same small inset at both
+     ends: the © ends as far from the right edge as the M starts from the
+     left. No px cap or floor, so it keeps reaching both edges however wide
+     the viewport gets (the old 417px cap left it at 74% of a 2560px screen
+     and 49% of a 3840px one). cqw is 1% of .variable-footer's own width;
+     the vw line is the fallback for browsers without container units. */
+  font-size: 22.1vw;
+  font-size: 22.1cqw;
+}
+
+.footer-variable-word {
+  width: max-content;
+
+  margin-left: -0.055em;
+
+  font-size: 1em;
+
+  font-weight: 500;
+
+  font-variation-settings:
+    "wght" 500,
+    "slnt" 0;
+
+  line-height: 0.72;
+
+  letter-spacing: -0.075em;
+
+  white-space: nowrap;
+
+  /* Exact, unhinted advances at every size, so the fit above holds from a
+     phone to an ultra-wide screen. */
+  text-rendering: geometricPrecision;
+
+  will-change: font-variation-settings;
+}
+
+.footer-word-mark {
+  font-family: "Relay Copyright", "Inter Variable", Arial, Helvetica, sans-serif;
+
+  /* Relay's capitals are taller than Inter's (830 vs 728 units per em),
+     so at the word's own font-size this © would stand 14% above the
+     letters. 0.877em (= 728 / 830) puts its height on their cap height. */
+  font-size: 0.877em;
+
+  /* Zero line-height so this font's different ascent/descent can't
+     stretch the word's tightly tuned line box. */
+  line-height: 0;
+}
+
+@media (max-width: 900px) {
+  .variable-footer {
+    min-height: clamp(180px, 23svh, 240px);
+  }
+}
+
+@media (max-width: 650px) {
+  .variable-footer {
+    min-height: 40svh;
+  }
+
+  .footer-word-crop {
+    overflow: hidden;
+  }
+}
