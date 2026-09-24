@@ -1809,6 +1809,7 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
               cs.fontSize +
               " " +
               cs.fontFamily;
+            inkContext.letterSpacing = cs.letterSpacing === "normal" ? "0px" : cs.letterSpacing;
             const ink = inkContext.measureText(p.textContent.trim());
             const inkCenter =
               textRect.left +
