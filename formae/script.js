@@ -99,6 +99,13 @@ document.querySelectorAll(".tester").forEach(
 );
 
 
+// How far the window is above the 1920px design width (1 up to it): the
+// type testers' own px sizes grow in step with the page above that.
+function wideScale() {
+  return Math.max(1, window.innerWidth / 1920);
+}
+
+
 testerUnits.forEach(
   function (unit) {
 
@@ -130,7 +137,10 @@ testerUnits.forEach(
     let sizeManuallySet = false;
 
     function applyTesterSize(requestedSize) {
-      let renderedSize = Number(requestedSize);
+      const wide = wideScale();
+      let renderedSize = Number(requestedSize) * wide;
+
+      tester.style.letterSpacing = Number(trackingSlider.value) * wide + "px";
 
       const testerStyle = window.getComputedStyle(tester);
       const horizontalPadding =
@@ -142,7 +152,7 @@ testerUnits.forEach(
       );
       const isFillWidth =
         tester.classList.contains("tester-medium") && !sizeManuallySet;
-      const scale = Math.min(1, availableWidth / 1500);
+      const scale = Math.min(1, availableWidth / (1500 * wide));
       let minimumSize = 24;
 
       if (tester.classList.contains("tester-small")) {
@@ -204,7 +214,7 @@ testerUnits.forEach(
         tester.style.whiteSpace = "";
 
         renderedSize = Math.min(
-          Number(requestedSize),
+          Number(requestedSize) * wide,
           Math.max(minimumSize, renderedSize * scale)
         );
       }
@@ -257,7 +267,7 @@ testerUnits.forEach(
     }
 
     tester.style.letterSpacing =
-      trackingSlider.value + "px";
+      Number(trackingSlider.value) * wideScale() + "px";
 
 
     sizeSlider.addEventListener(
@@ -339,7 +349,7 @@ testerUnits.forEach(
       function () {
 
         tester.style.letterSpacing =
-          this.value + "px";
+          Number(this.value) * wideScale() + "px";
 
         trackingValue.textContent =
           this.value;
@@ -582,7 +592,8 @@ if (kerningLab) {
     const mobileKerning = window.innerWidth <= 650;
     const kerningFontSize = (mobileKerning
       ? Math.max(64, Math.min(96, window.innerWidth * 0.22))
-      : Math.max(110, Math.min(270, window.innerWidth * 0.15))) * 0.7197;
+      : Math.max(110, Math.min(270, window.innerWidth * 0.15)) *
+        Math.max(1, window.innerWidth / 1920)) * 0.7197;
 
     kerningLab.style.setProperty("--kerning-weight", weight);
     kerningLab.style.setProperty("--kerning-tracking", tracking);
@@ -2074,6 +2085,11 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
     if (match && isPosterValue(el, prop)) {
       return "calc(" + match[1] + " * var(--u))";
     }
+    // Everything else keeps its design px up to 1920 and grows with the
+    // page above it.
+    if (match && parseFloat(match[1]) !== 0) {
+      return "calc(" + match[1] + " * var(--w))";
+    }
     return stored;
   }
 
@@ -2082,9 +2098,17 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
   // that here (identical to what it always was at 1920 and above).
   function storedFromTyped(el, prop, typed) {
     const px = parseFloat(typed);
-    if (!isFinite(px) || !isPosterValue(el, prop)) return typed + "px";
+    if (!isFinite(px)) return typed + "px";
+    if (!isPosterValue(el, prop)) {
+      // Plain values are design px that grow above 1920 (--w).
+      return (
+        Math.round((px / Math.max(1, window.innerWidth / DESIGN_WIDTH)) * 10) /
+          10 +
+        "px"
+      );
+    }
 
-    const scale = Math.min(1, window.innerWidth / DESIGN_WIDTH);
+    const scale = window.innerWidth / DESIGN_WIDTH;
     return Math.round((px / scale) * 10) / 10 + "px";
   }
 
@@ -2405,7 +2429,7 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
             .slice(1)
             .join(":")
             .trim()
-            .replace(/calc\((-?[\d.]+) \* var\(--u\)\)/g, "$1px");
+            .replace(/calc\((-?[\d.]+) \* var\(--[uw]\)\)/g, "$1px");
           return "  " + prop + ": " + value + ";";
         })
         .join("\n");

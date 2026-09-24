@@ -93,6 +93,12 @@ main > section[hidden] {
 
 html {
   scroll-behavior: smooth;
+
+  /* em/rem and the browser's own default sizes (h3, paragraph margins)
+     follow the root size, so they grow with the page above 1920 like
+     everything else; at or below it this is the reader's normal default
+     size, untouched. */
+  font-size: max(100%, calc(16 * var(--w)));
 }
 
 body {
@@ -149,13 +155,13 @@ body {
   --foreground: #111111;
 
   --page-margin:
-    clamp(16px, 2.2vw, 36px);
+    clamp(calc(16 * var(--w)), 2.2vw, calc(36 * var(--w)));
 
   --section-space:
-    clamp(80px, 10vw, 180px);
+    clamp(calc(80 * var(--w)), 10vw, calc(180 * var(--w)));
 
   --border:
-    1px solid rgba(0, 0, 0, 0.45);
+    calc(1 * var(--w)) solid rgba(0, 0, 0, 0.45);
 
   /* leíró betűk — every descriptive/label/caption text on the page
      (metrics, feature labels, section titles, control labels, Font Info
@@ -166,20 +172,30 @@ body {
   /* "Poster" scaling for the specimen blocks (Text Samples, Type
      Samples 2). Their compositions were designed at a 1920px-wide
      viewport, where every glyph fits its box exactly. --u is what 1px of
-     that design measures at the current viewport: exactly 1px from 1920
-     up, shrinking in step with the viewport below that. Anything sized
-     as calc(N * var(--u)) therefore keeps the same proportions to its
-     box at every width, instead of staying N px while the box shrinks
-     around it (which is what cropped the big glyphs). */
+     that design measures at the current viewport: it shrinks in step with
+     the viewport below 1920 and keeps growing in step above it. Anything
+     sized as calc(N * var(--u)) therefore keeps the same proportions to
+     its box at every width, instead of staying N px while the box
+     changes around it (which is what cropped the big glyphs). */
   --u:
-    min(1px, calc(100vw / 1920));
+    calc(100vw / 1920);
+
+  /* Everything else on the page: exactly 1px up to 1920 (so nothing there
+     changes), then it grows in step with the viewport. Every fixed px
+     length that can apply above 1920 is written calc(N * var(--w)), so a
+     wide screen shows the 1920 layout scaled up -- the same gaps above and
+     below the letters, in proportion -- instead of a page that stops
+     growing and drifts apart. The editor tools (Section Reorder, Design
+     Mode) and the rules that only apply below 1920 keep plain px. */
+  --w:
+    max(1px, calc(100vw / 1920));
 
   /* One size for every big section heading (Character Set, OpenType
      Features, Buy Formae, Licensing options, More typefaces): 44px at
      1920, then a steady linear decrease with the viewport -- no flat
      stretches -- down to about 20px on a phone. */
   --h1-size:
-    clamp(18px, calc(14px + 1.5625vw), 44px);
+    clamp(calc(18 * var(--w)), calc(calc(14 * var(--w)) + 1.5625vw), calc(44 * var(--w)));
 
 }
 
@@ -193,15 +209,15 @@ body {
 
 .news-widget {
   position: fixed;
-  top: calc(70px + 16px);
-  right: 16px;
+  top: calc(calc(70 * var(--w)) + calc(16 * var(--w)));
+  right: calc(16 * var(--w));
   z-index: 20;
 
   display: flex;
   flex-direction: column;
-  gap: 8px;
+  gap: calc(8 * var(--w));
 
-  width: 240px;
+  width: calc(240 * var(--w));
 
   font-family: "Inter Variable", Arial, Helvetica, sans-serif;
 }
@@ -209,16 +225,16 @@ body {
 .news-widget-news {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: calc(6 * var(--w));
 
-  padding: 14px 16px;
+  padding: calc(14 * var(--w)) calc(16 * var(--w));
 
   background: #fbb040;
   color: #141413;
 
-  border-radius: 14px;
+  border-radius: calc(14 * var(--w));
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   line-height: 1.35;
 
   animation: news-widget-wiggle 7s ease-in-out infinite;
@@ -231,16 +247,16 @@ body {
     transform: translate(0, 0) rotate(0deg);
   }
   90% {
-    transform: translate(-2px, 1px) rotate(-1deg);
+    transform: translate(calc(-2 * var(--w)), calc(1 * var(--w))) rotate(-1deg);
   }
   92% {
-    transform: translate(2px, -1px) rotate(1deg);
+    transform: translate(calc(2 * var(--w)), calc(-1 * var(--w))) rotate(1deg);
   }
   94% {
-    transform: translate(-1px, 1px) rotate(-0.6deg);
+    transform: translate(calc(-1 * var(--w)), calc(1 * var(--w))) rotate(-0.6deg);
   }
   96% {
-    transform: translate(1px, 0) rotate(0.4deg);
+    transform: translate(calc(1 * var(--w)), 0) rotate(0.4deg);
   }
   100% {
     transform: translate(0, 0) rotate(0deg);
@@ -262,21 +278,21 @@ body {
 }
 
 .news-widget-fonts {
-  padding: 14px 16px;
+  padding: calc(14 * var(--w)) calc(16 * var(--w));
 
   background: var(--background);
   color: var(--foreground);
 
-  border: 1px solid rgba(0, 0, 0, 0.15);
-  border-radius: 14px;
+  border: calc(1 * var(--w)) solid rgba(0, 0, 0, 0.15);
+  border-radius: calc(14 * var(--w));
 }
 
 .news-widget-fonts-label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: calc(8 * var(--w));
 
-  font-size: 11px;
+  font-size: calc(11 * var(--w));
   text-transform: uppercase;
   letter-spacing: 0.04em;
   opacity: 0.6;
@@ -285,20 +301,20 @@ body {
 .news-widget-fonts-list {
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: calc(6 * var(--w));
 }
 
 .news-widget-font-box {
-  padding: 8px 10px;
+  padding: calc(8 * var(--w)) calc(10 * var(--w));
 
   color: inherit;
   text-decoration: none;
 
   background: rgba(0, 0, 0, 0.04);
 
-  border-radius: 8px;
+  border-radius: calc(8 * var(--w));
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
 
   transition: background-color 150ms ease;
 }
@@ -325,12 +341,12 @@ body {
 
   align-items: center;
 
-  gap: 16px;
+  gap: calc(16 * var(--w));
 
-  min-height: 70px;
+  min-height: calc(70 * var(--w));
 
   padding:
-    18px
+    calc(18 * var(--w))
     var(--page-margin);
 
   border-bottom:
@@ -348,7 +364,7 @@ body {
 
   text-decoration: none;
 
-  font-size: 17px;
+  font-size: calc(17 * var(--w));
 }
 
 
@@ -358,7 +374,7 @@ body {
   justify-self: center;
 
   gap:
-    clamp(16px, 2vw, 34px);
+    clamp(calc(16 * var(--w)), 2vw, calc(34 * var(--w)));
 }
 
 
@@ -369,7 +385,7 @@ body {
 
   justify-self: end;
 
-  gap: 10px;
+  gap: calc(10 * var(--w));
 }
 
 
@@ -378,7 +394,7 @@ body {
 
   text-decoration: none;
 
-  font-size: 14px;
+  font-size: calc(14 * var(--w));
 }
 
 
@@ -449,7 +465,7 @@ body {
 }
 
 .slide-bleed p {
-  font-size: clamp(220px, 145vh, 2000px);
+  font-size: clamp(calc(220 * var(--w)), 145vh, calc(2000 * var(--w)));
 
   line-height: 0.85;
 
@@ -473,8 +489,8 @@ body {
      same dark background, so the overlap is invisible, and it kills
      any sub-pixel rounding gap between the image and this section
      that could otherwise show a hairline of the page background. */
-  margin-top: -1px;
-  padding-top: calc(16px + 1px);
+  margin-top: calc(-1 * var(--w));
+  padding-top: calc(calc(16 * var(--w)) + calc(1 * var(--w)));
 
   background: var(--foreground);
   color: var(--background);
@@ -487,7 +503,7 @@ body {
 .font-info-header {
   position: relative;
 
-  margin: 0 var(--page-margin) 14px;
+  margin: 0 var(--page-margin) calc(14 * var(--w));
 }
 
 .font-info-header .font-info-title {
@@ -497,7 +513,7 @@ body {
 .font-info-actions {
   display: flex;
 
-  gap: 10px;
+  gap: calc(10 * var(--w));
 }
 
 .font-info-header .font-info-actions {
@@ -541,7 +557,7 @@ body {
 .font-info-actions.font-info-actions-pinned {
   position: fixed;
 
-  top: calc(var(--header-height, 81px) / 2);
+  top: calc(var(--header-height, calc(81 * var(--w))) / 2);
   /* Unpinned right:0 is relative to .font-info-header, which is
      itself inset by var(--page-margin) from the true edge -- pinned
      right:0 is relative to the raw viewport instead, landing
@@ -582,23 +598,23 @@ body {
 }
 
 .font-info-action {
-  padding: 9px 20px;
+  padding: calc(9 * var(--w)) calc(20 * var(--w));
 
   font-family: var(--descriptive-font);
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 
   text-decoration: none;
 
   white-space: nowrap;
 
-  border-radius: 999px;
+  border-radius: calc(999 * var(--w));
 }
 
 .font-info-action-outline {
   color: var(--background);
 
-  border: 1px solid rgba(255, 255, 255, 0.5);
+  border: calc(1 * var(--w)) solid rgba(255, 255, 255, 0.5);
 }
 
 .font-info-action-solid {
@@ -606,7 +622,7 @@ body {
 
   background: #fbb040;
 
-  border: 1px solid #fbb040;
+  border: calc(1 * var(--w)) solid #fbb040;
 }
 
 /* Unpinned (Font Info) vertical position, dialed in live via Design
@@ -614,15 +630,15 @@ body {
    so the pinned (header) state is untouched and stays exactly as it
    is. */
 .font-info-actions:not(.font-info-actions-pinned) .font-info-action-solid {
-  margin-top: 40px;
-  padding-top: 9px;
+  margin-top: calc(40 * var(--w));
+  padding-top: calc(9 * var(--w));
 }
 
 .font-info-actions:not(.font-info-actions-pinned) .font-info-action-outline {
-  margin-top: 40px;
-  margin-right: -4px;
-  padding-top: 9px;
-  padding-bottom: 9px;
+  margin-top: calc(40 * var(--w));
+  margin-right: calc(-4 * var(--w));
+  padding-top: calc(9 * var(--w));
+  padding-bottom: calc(9 * var(--w));
 }
 
 .font-info-grid {
@@ -630,20 +646,20 @@ body {
 
   grid-template-columns: repeat(12, 1fr);
 
-  column-gap: clamp(16px, 2vw, 32px);
+  column-gap: clamp(calc(16 * var(--w)), 2vw, calc(32 * var(--w)));
   row-gap: 0;
 
-  padding: 0 var(--page-margin) clamp(80px, 12vw, 160px);
+  padding: 0 var(--page-margin) clamp(calc(80 * var(--w)), 12vw, calc(160 * var(--w)));
 }
 
 .font-info-block {
   grid-column: span 4;
 
-  padding-top: 16px;
+  padding-top: calc(16 * var(--w));
 
-  border-top: 1px solid rgba(255, 255, 255, 0.35);
+  border-top: calc(1 * var(--w)) solid rgba(255, 255, 255, 0.35);
 
-  margin-top: clamp(24px, 3vw, 40px);
+  margin-top: clamp(calc(24 * var(--w)), 3vw, calc(40 * var(--w)));
 }
 
 .font-info-block-description {
@@ -657,9 +673,9 @@ body {
 }
 
 .font-info-block h3 {
-  margin: 0 0 14px;
+  margin: 0 0 calc(14 * var(--w));
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   font-weight: 400;
 
   color: rgba(255, 255, 255, 0.55);
@@ -671,7 +687,7 @@ body {
 .font-info-block a {
   margin: 0;
 
-  font-size: clamp(15px, 1.1vw, 19px);
+  font-size: clamp(calc(15 * var(--w)), 1.1vw, calc(19 * var(--w)));
 
   line-height: 1.4;
 }
@@ -679,7 +695,7 @@ body {
 .font-info-block-description p {
   max-width: 46ch;
 
-  font-size: clamp(22px, 2.3vw, 34px);
+  font-size: clamp(calc(22 * var(--w)), 2.3vw, calc(34 * var(--w)));
 
   line-height: 1.28;
 }
@@ -687,12 +703,12 @@ body {
 .font-info-block a {
   display: block;
 
-  margin-top: 8px;
+  margin-top: calc(8 * var(--w));
 
   color: inherit;
 
   text-decoration: underline;
-  text-underline-offset: 3px;
+  text-underline-offset: calc(3 * var(--w));
 }
 
 .font-info-style-list {
@@ -700,7 +716,7 @@ body {
 
   flex-wrap: wrap;
 
-  gap: 8px 10px;
+  gap: calc(8 * var(--w)) calc(10 * var(--w));
 
   margin: 0;
 
@@ -710,14 +726,14 @@ body {
 }
 
 .font-info-style-list li {
-  padding: 5px 12px;
+  padding: calc(5 * var(--w)) calc(12 * var(--w));
 
   color: rgba(255, 255, 255, 0.4);
 
-  border: 1px solid rgba(255, 255, 255, 0.35);
-  border-radius: 999px;
+  border: calc(1 * var(--w)) solid rgba(255, 255, 255, 0.35);
+  border-radius: calc(999 * var(--w));
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 /* Only Regular is actually finished -- keep it full-strength so it
@@ -733,9 +749,9 @@ body {
 }
 
 .font-info-substyle {
-  margin-top: 14px;
+  margin-top: calc(14 * var(--w));
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
 }
 
 .font-info-note {
@@ -774,7 +790,7 @@ body {
 .font-info-inverse .font-info-style-list li {
   color: rgba(0, 0, 0, 0.4);
 
-  border: 1px solid rgba(0, 0, 0, 0.35);
+  border: calc(1 * var(--w)) solid rgba(0, 0, 0, 0.35);
 }
 
 .font-info-inverse .font-info-style-list .font-info-style-ready {
@@ -826,18 +842,18 @@ body {
 
 .kerning-toolbar {
   padding:
-    24px
+    calc(24 * var(--w))
     var(--page-margin)
-    40px;
+    calc(40 * var(--w));
 
   display: grid;
 
   grid-template-columns:
-    minmax(180px, 1fr)
-    minmax(180px, 1fr);
+    minmax(calc(180 * var(--w)), 1fr)
+    minmax(calc(180 * var(--w)), 1fr);
 
   gap:
-    clamp(24px, 4vw, 70px);
+    clamp(calc(24 * var(--w)), 4vw, calc(70 * var(--w)));
 
   align-items: end;
 }
@@ -847,16 +863,16 @@ body {
 .kerning-input-label {
   display: block;
 
-  margin-bottom: 8px;
+  margin-bottom: calc(8 * var(--w));
 
-  font-size: 11px;
+  font-size: calc(11 * var(--w));
 }
 
 
 .kerning-toolbar h2 {
   margin: 0;
 
-  font-size: 18px;
+  font-size: calc(18 * var(--w));
 
   font-weight: 400;
 }
@@ -865,9 +881,9 @@ body {
 .kerning-control {
   display: grid;
 
-  gap: 10px;
+  gap: calc(10 * var(--w));
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
@@ -891,7 +907,7 @@ body {
   appearance: none;
   -webkit-appearance: none;
 
-  height: 1px;
+  height: calc(1 * var(--w));
 
   background: var(--background);
 
@@ -903,8 +919,8 @@ body {
   appearance: none;
   -webkit-appearance: none;
 
-  width: 12px;
-  height: 12px;
+  width: calc(12 * var(--w));
+  height: calc(12 * var(--w));
 
   border-radius: 50%;
 
@@ -915,8 +931,8 @@ body {
 
 
 .kerning-control input[type="range"]::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: calc(12 * var(--w));
+  height: calc(12 * var(--w));
 
   border: 0;
 
@@ -932,7 +948,7 @@ body {
   margin:
     0
     var(--page-margin)
-    8px;
+    calc(8 * var(--w));
 }
 
 
@@ -943,9 +959,9 @@ body {
   margin:
     0
     var(--page-margin)
-    24px;
+    calc(24 * var(--w));
 
-  padding: 10px 0;
+  padding: calc(10 * var(--w)) 0;
 
   color: inherit;
 
@@ -954,14 +970,14 @@ body {
   border: 0;
 
   border-bottom:
-    1px solid rgba(245, 245, 240, 0.45);
+    calc(1 * var(--w)) solid rgba(245, 245, 240, 0.45);
 
   border-radius: 0;
 
   font: inherit;
 
   font-size:
-    clamp(18px, 2vw, 30px);
+    clamp(calc(18 * var(--w)), 2vw, calc(30 * var(--w)));
 
   outline: 0;
 }
@@ -990,15 +1006,15 @@ body {
   position: relative;
 
   width:
-    calc(var(--kerning-cell-width, 100) * 1px);
+    calc(var(--kerning-cell-width, 100) * calc(1 * var(--w)));
 
   height:
-    calc(var(--kerning-font-size, 180) * 1px + 42px);
+    calc(var(--kerning-font-size, 180) * calc(1 * var(--w)) + calc(42 * var(--w)));
 
   padding:
-    24px
+    calc(24 * var(--w))
     0
-    8px;
+    calc(8 * var(--w));
 
   display: flex;
 
@@ -1007,7 +1023,7 @@ body {
   justify-content: center;
 
   border-left:
-    1px solid rgba(245, 245, 240, 0.5);
+    calc(1 * var(--w)) solid rgba(245, 245, 240, 0.5);
 
   overflow: hidden;
 }
@@ -1018,9 +1034,9 @@ body {
 
   top: 0;
 
-  left: 4px;
+  left: calc(4 * var(--w));
 
-  font-size: 9px;
+  font-size: calc(9 * var(--w));
 
   font-weight: 400;
 }
@@ -1028,7 +1044,7 @@ body {
 
 .kerning-glyph-character {
   font-size:
-    calc(var(--kerning-font-size, 180) * 1px);
+    calc(var(--kerning-font-size, 180) * calc(1 * var(--w)));
 
   font-weight: var(--kerning-weight, 700);
 
@@ -1038,7 +1054,7 @@ body {
   line-height: 1;
 
   letter-spacing:
-    calc(var(--kerning-tracking, 0) * 1px);
+    calc(var(--kerning-tracking, 0) * calc(1 * var(--w)));
 }
 
 
@@ -1091,8 +1107,8 @@ body {
      one row, so its 30px never reads as vertical whitespace there --
      using the same number for the title-to-controls gap here read as
      an oversized, unrelated space. */
-  row-gap: 10px;
-  column-gap: 30px;
+  row-gap: calc(10 * var(--w));
+  column-gap: calc(30 * var(--w));
 }
 
 .tester-unit:nth-child(n + 2) .tester-controls .tester-title {
@@ -1106,8 +1122,8 @@ body {
   grid-template-columns: auto 1fr;
   grid-template-rows: auto auto;
 
-  row-gap: 4px;
-  column-gap: 8px;
+  row-gap: calc(4 * var(--w));
+  column-gap: calc(8 * var(--w));
 }
 
 .tester-unit:nth-child(n + 2) .control label {
@@ -1137,20 +1153,20 @@ body {
 
   grid-template-columns:
     1fr
-    repeat(3, minmax(200px, 1fr));
+    repeat(3, minmax(calc(200 * var(--w)), 1fr));
 
   align-items: center;
 
-  gap: 30px;
+  gap: calc(30 * var(--w));
 
   padding:
-    14px
+    calc(14 * var(--w))
     var(--page-margin);
 
   border-bottom:
     var(--border);
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
@@ -1165,7 +1181,7 @@ body {
   grid-template-columns:
     auto
     minmax(0, 0.65fr)
-    55px
+    calc(55 * var(--w))
     minmax(0, 0.35fr);
 
   align-items: center;
@@ -1177,7 +1193,7 @@ body {
 .control label {
   white-space: nowrap;
 
-  margin-right: 16px;
+  margin-right: calc(16 * var(--w));
 }
 
 
@@ -1186,7 +1202,7 @@ body {
 
   text-align: left;
 
-  padding-left: 20px;
+  padding-left: calc(20 * var(--w));
 }
 
 
@@ -1200,7 +1216,7 @@ body {
   appearance: none;
   -webkit-appearance: none;
 
-  height: 1px;
+  height: calc(1 * var(--w));
 
   background: #111;
 
@@ -1212,8 +1228,8 @@ body {
   appearance: none;
   -webkit-appearance: none;
 
-  width: 12px;
-  height: 12px;
+  width: calc(12 * var(--w));
+  height: calc(12 * var(--w));
 
   border-radius: 50%;
 
@@ -1224,8 +1240,8 @@ body {
 
 
 .control input[type="range"]::-moz-range-thumb {
-  width: 12px;
-  height: 12px;
+  width: calc(12 * var(--w));
+  height: calc(12 * var(--w));
 
   border: 0;
 
@@ -1249,13 +1265,13 @@ body {
   width: 100%;
 
   min-height:
-    clamp(320px, 45vw, 720px);
+    clamp(calc(320 * var(--w)), 45vw, calc(720 * var(--w)));
 
   padding:
-    clamp(35px, 5vw, 80px)
+    clamp(calc(35 * var(--w)), 5vw, calc(80 * var(--w)))
     var(--page-margin);
 
-  font-size: 160px;
+  font-size: calc(160 * var(--w));
 
   font-weight: 400;
 
@@ -1272,7 +1288,7 @@ body {
 
 
 .tester-large {
-  font-size: 350px;
+  font-size: calc(350 * var(--w));
   font-weight: 900;
   font-variation-settings: "wght" 900;
   line-height: 1.2;
@@ -1281,7 +1297,7 @@ body {
 
 
 .tester-medium {
-  font-size: 225px;
+  font-size: calc(225 * var(--w));
   font-weight: 600;
   font-variation-settings: "wght" 600;
 
@@ -1303,7 +1319,7 @@ body {
    so the text wraps identically at every width and the box height
    follows it, keeping the box's proportions. */
 .tester.tester-small {
-  font-size: 56px;
+  font-size: calc(56 * var(--w));
 
   /* Less vertical breathing room above/below the text (left/right
      stays the shared var(--page-margin) from the base rule's
@@ -1314,17 +1330,17 @@ body {
      floor is 200px at the 1920 design width and scales with the
      viewport below it (see --u). */
   min-height: calc(200 * var(--u));
-  padding-top: clamp(10px, 1.4vw, 22px);
-  padding-bottom: clamp(10px, 1.4vw, 22px);
+  padding-top: clamp(calc(10 * var(--w)), 1.4vw, calc(22 * var(--w)));
+  padding-bottom: clamp(calc(10 * var(--w)), 1.4vw, calc(22 * var(--w)));
 }
 
 
 .tester-micro {
   min-height: 0;
-  padding: 28px var(--page-margin);
-  font-size: 16px;
+  padding: calc(28 * var(--w)) var(--page-margin);
+  font-size: calc(16 * var(--w));
   line-height: 1.1;
-  letter-spacing: 0.4px;
+  letter-spacing: calc(0.4 * var(--w));
 }
 
 
@@ -1349,7 +1365,7 @@ body {
      height gives more breathing room around the letters and between
      one specimen row and the next. Bumped again for even more room
      between rows. */
-  min-height: clamp(320px, 40vw, 550px);
+  min-height: clamp(calc(320 * var(--w)), 40vw, calc(550 * var(--w)));
 
   padding:
     var(--page-margin);
@@ -1370,7 +1386,7 @@ body {
 
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 
   text-align: left;
 }
@@ -1378,14 +1394,14 @@ body {
 
 .specimen-text.specimen-text-match-wine {
   font-size:
-    clamp(141px, 35.3vw, 706px);
+    clamp(calc(141 * var(--w)), 35.3vw, calc(706 * var(--w)));
 }
 
 .specimen-text {
   width: 100%;
 
   font-size:
-    clamp(82px, 15vw, 280px);
+    clamp(calc(82 * var(--w)), 15vw, calc(280 * var(--w)));
 
   line-height: 1.2;
 
@@ -1400,7 +1416,7 @@ body {
 
 .specimen-text-long {
   font-size:
-    clamp(28px, 4.2vw, 110px);
+    clamp(calc(28 * var(--w)), 4.2vw, calc(110 * var(--w)));
 }
 
 
@@ -1409,9 +1425,9 @@ body {
   flex-wrap: wrap;
   align-items: center;
   justify-content: flex-start;
-  gap: clamp(12px, 2vw, 30px);
+  gap: clamp(calc(12 * var(--w)), 2vw, calc(30 * var(--w)));
   width: 100%;
-  font-size: clamp(58px, 8vw, 140px);
+  font-size: clamp(calc(58 * var(--w)), 8vw, calc(140 * var(--w)));
   line-height: 1;
   letter-spacing: 0;
   text-align: left;
@@ -1485,7 +1501,7 @@ body {
   padding:
     var(--page-margin)
     var(--page-margin)
-    clamp(145px, 18.8vw, 255px);
+    clamp(calc(145 * var(--w)), 18.8vw, calc(255 * var(--w)));
 
   display: flex;
 
@@ -1499,13 +1515,13 @@ body {
 
 
 .display-small {
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
 .display-large {
   font-size:
-    clamp(220px, 45vw, 820px);
+    clamp(calc(220 * var(--w)), 45vw, calc(820 * var(--w)));
 
   font-weight: 900;
 
@@ -1522,11 +1538,11 @@ body {
 ======================================== */
 
 .section-title {
-  margin-bottom: 24px;
+  margin-bottom: calc(24 * var(--w));
 
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
@@ -1595,7 +1611,7 @@ body {
   top: 0;
   bottom: 0;
 
-  width: 1px;
+  width: calc(1 * var(--w));
 
   background: rgba(0, 0, 0, 0.45);
 }
@@ -1611,9 +1627,9 @@ body {
     calc(680 * var(--u));
 
   padding:
-    16px
+    calc(16 * var(--w))
     var(--page-margin)
-    clamp(35px, 5vw, 80px);
+    clamp(calc(35 * var(--w)), 5vw, calc(80 * var(--w)));
 
   display: flex;
 
@@ -1633,7 +1649,7 @@ body {
 .text-sample span {
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
@@ -1646,7 +1662,7 @@ body {
      all four boxes. A pure em value can't fix it alone since the fixed
      part doesn't scale — mix px and em so the visible gap comes out the
      same at every font-size. */
-  margin-top: calc(0.049em - 1.07px);
+  margin-top: calc(0.049em - calc(1.07 * var(--w)));
 
   letter-spacing: -0.04em;
 }
@@ -1659,12 +1675,12 @@ body {
 
   justify-content: flex-start;
 
-  gap: 12px;
+  gap: calc(12 * var(--w));
 }
 
 .text-sample-hero p.text-sample-hero-huge {
   font-size:
-    min(50cqmin, 460px);
+    min(50cqmin, calc(460 * var(--w)));
 }
 
 .text-sample-hero p.text-sample-hero-6x {
@@ -1673,7 +1689,7 @@ body {
   z-index: 1;
 
   font-size:
-    min(15vw, 280px);
+    min(15vw, calc(280 * var(--w)));
 
   /* This box renders at a much larger font-size (up to 280px, sized by
      vw) than Sauvignon's box next to it (settles around 116.6px, sized
@@ -1685,14 +1701,14 @@ body {
      glyph-shape argument predicts the right number -- verify it.
      The 30px pull-up is a design-width px (see --u): a flat 30px would
      drag a shrunken word up over its own label. */
-  margin-top: calc(0.049em - 1.07px - 30 * var(--u));
+  margin-top: calc(0.049em - calc(1.07 * var(--w)) - 30 * var(--u));
 }
 
 .text-sample-hero p {
-  max-width: 1200px;
+  max-width: calc(1200 * var(--w));
 
   font-size:
-    min(20cqmin, 200px);
+    min(20cqmin, calc(200 * var(--w)));
 
   font-weight: 900;
 
@@ -1734,7 +1750,7 @@ body {
   justify-content: center;
 
   padding-top:
-    clamp(35px, 5vw, 80px);
+    clamp(calc(35 * var(--w)), 5vw, calc(80 * var(--w)));
 
   color: var(--background);
 
@@ -1745,7 +1761,7 @@ body {
   text-align: center;
 
   font-size:
-    min(55cqmin, 400px);
+    min(55cqmin, calc(400 * var(--w)));
 }
 
 
@@ -1760,7 +1776,7 @@ body {
      kerning/rounding -- it guarantees fit at any container width,
      which is why no separate mobile/tablet override is needed here. */
   font-size:
-    min(8.5cqw, 150px);
+    min(8.5cqw, calc(150 * var(--w)));
 
   font-weight: 500;
 
@@ -1777,12 +1793,12 @@ body {
 
   justify-content: flex-start;
 
-  gap: 12px;
+  gap: calc(12 * var(--w));
 }
 
 .text-sample-large {
   padding-right:
-    clamp(40px, 7vw, 120px);
+    clamp(calc(40 * var(--w)), 7vw, calc(120 * var(--w)));
 }
 
 /* "à" and "1%" are two fully independent <article> elements (like
@@ -1812,7 +1828,7 @@ body {
   top: 0;
   bottom: 0;
 
-  width: 1px;
+  width: calc(1 * var(--w));
 
   background: rgba(0, 0, 0, 0.45);
 }
@@ -1832,7 +1848,7 @@ body {
   /* Same values .text-sample's own shorthand used to provide for the
      shared article -- each half now supplies them independently, so
      nothing about a shared parent can shift the other one's content. */
-  padding: 16px var(--page-margin) clamp(35px, 5vw, 80px);
+  padding: calc(16 * var(--w)) var(--page-margin) clamp(calc(35 * var(--w)), 5vw, calc(80 * var(--w)));
 }
 
 .text-sample-half-article:first-child {
@@ -1852,17 +1868,17 @@ body {
 .text-sample-half-article span {
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 .text-sample-half-article p {
   margin: 0;
 
-  margin-top: calc(0.049em - 1.07px);
+  margin-top: calc(0.049em - calc(1.07 * var(--w)));
 
   letter-spacing: -0.04em;
 
-  font-size: min(8.5cqw, 150px);
+  font-size: min(8.5cqw, calc(150 * var(--w)));
   font-weight: 500;
   line-height: 1.1;
 }
@@ -1920,11 +1936,11 @@ body {
    bottom row skip the border they'd otherwise duplicate on their
    neighbour; the outer edges intentionally stay bare. */
 .text-sample-split-4 .text-sample-quad:nth-child(odd) {
-  border-right: 1px solid rgba(0, 0, 0, 0.45);
+  border-right: calc(1 * var(--w)) solid rgba(0, 0, 0, 0.45);
 }
 
 .text-sample-split-4 .text-sample-quad:nth-child(-n + 2) {
-  border-bottom: 1px solid rgba(0, 0, 0, 0.45);
+  border-bottom: calc(1 * var(--w)) solid rgba(0, 0, 0, 0.45);
 }
 
 .text-sample-quad {
@@ -1937,12 +1953,12 @@ body {
   flex-direction: column;
   justify-content: space-between;
 
-  padding: 16px var(--page-margin);
+  padding: calc(16 * var(--w)) var(--page-margin);
 }
 
 .text-sample-quad p {
   font-size:
-    min(20cqmin, 90px);
+    min(20cqmin, calc(90 * var(--w)));
 
   font-weight: 900;
 
@@ -2040,7 +2056,7 @@ body {
   top: 0;
   bottom: 0;
 
-  width: 1px;
+  width: calc(1 * var(--w));
 
   background: rgba(0, 0, 0, 0.45);
 }
@@ -2073,7 +2089,7 @@ body {
    there): cqmin follows the half's content box, whose fixed paddings
    don't shrink with it, so it drifted off-proportion at narrow widths. */
 #a-cycle {
-  font-size: min(calc(315.3 * var(--u)), 350px);
+  font-size: min(calc(315.3 * var(--u)), calc(350 * var(--w)));
 }
 
 
@@ -2096,11 +2112,11 @@ body {
 
   grid-template-columns: repeat(12, 1fr);
 
-  column-gap: 10px;
-  row-gap: clamp(28px, 4vw, 64px);
+  column-gap: calc(10 * var(--w));
+  row-gap: clamp(calc(28 * var(--w)), 4vw, calc(64 * var(--w)));
 
   padding:
-    clamp(28px, 4vw, 64px)
+    clamp(calc(28 * var(--w)), 4vw, calc(64 * var(--w)))
     var(--page-margin);
 }
 
@@ -2109,7 +2125,7 @@ body {
 
   border-top: var(--border);
 
-  padding-top: 16px;
+  padding-top: calc(16 * var(--w));
 }
 
 .type-scale-1 {
@@ -2119,15 +2135,15 @@ body {
      sits exactly 14px below the section start -- the same gap every
      other block has from its own border-top line, not that plus the
      grid's extra top padding on top. */
-  margin-top: calc(-1 * clamp(28px, 4vw, 64px));
+  margin-top: calc(-1 * clamp(calc(28 * var(--w)), 4vw, calc(64 * var(--w))));
 }
 
 .type-scale-meta {
-  margin-bottom: clamp(14px, 1.6vw, 28px);
+  margin-bottom: clamp(calc(14 * var(--w)), 1.6vw, calc(28 * var(--w)));
 
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 .type-scale-text {
@@ -2161,13 +2177,13 @@ body {
 .type-scale-1 .type-scale-text {
   max-width: 20ch;
 
-  font-size: clamp(40px, 6.1vw, 88px);
+  font-size: clamp(calc(40 * var(--w)), 6.1vw, calc(88 * var(--w)));
   line-height: 1.3;
   letter-spacing: 0;
 }
 
 .type-scale-2 .type-scale-text {
-  font-size: clamp(30px, 4.44vw, 64px);
+  font-size: clamp(calc(30 * var(--w)), 4.44vw, calc(64 * var(--w)));
   line-height: 1.3;
   letter-spacing: -0.01em;
 }
@@ -2175,22 +2191,22 @@ body {
 .type-scale-3 .type-scale-text {
   max-width: 34ch;
 
-  font-size: clamp(24px, 3.33vw, 48px);
+  font-size: clamp(calc(24 * var(--w)), 3.33vw, calc(48 * var(--w)));
   line-height: 1.3;
 }
 
 .type-scale-4 .type-scale-text {
-  font-size: clamp(19px, 2.22vw, 32px);
+  font-size: clamp(calc(19 * var(--w)), 2.22vw, calc(32 * var(--w)));
   line-height: 1.3;
 }
 
 .type-scale-5 .type-scale-text {
-  font-size: clamp(15px, 1.67vw, 24px);
+  font-size: clamp(calc(15 * var(--w)), 1.67vw, calc(24 * var(--w)));
   line-height: 1.3;
 }
 
 .type-scale-6 .type-scale-text {
-  font-size: clamp(13px, 1.11vw, 16px);
+  font-size: clamp(calc(13 * var(--w)), 1.11vw, calc(16 * var(--w)));
   line-height: 1.3;
 }
 
@@ -2211,7 +2227,7 @@ body {
 ======================================== */
 
 .characters {
-  padding-top: 16px;
+  padding-top: calc(16 * var(--w));
 
   border-bottom:
     var(--border);
@@ -2224,7 +2240,7 @@ body {
    out of it). */
 .characters > .section-title {
   /* Same heading-to-next-row gap as "Licensing options". */
-  margin: 0 var(--page-margin) 20px;
+  margin: 0 var(--page-margin) calc(20 * var(--w));
 
   color: var(--foreground);
 
@@ -2283,10 +2299,10 @@ body {
 
 .character-preview > #character-preview-value {
   position: absolute;
-  width: 1px;
-  height: 1px;
+  width: calc(1 * var(--w));
+  height: calc(1 * var(--w));
   padding: 0;
-  margin: -1px;
+  margin: calc(-1 * var(--w));
   overflow: hidden;
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
@@ -2311,21 +2327,21 @@ body {
 
 .metric {
   position: absolute;
-  left: 28px;
-  right: 28px;
+  left: calc(28 * var(--w));
+  right: calc(28 * var(--w));
   display: grid;
   grid-template-columns: auto 1fr auto;
   align-items: center;
-  gap: 10px;
+  gap: calc(10 * var(--w));
   color: #555;
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   line-height: 1;
   letter-spacing: 0.02em;
 }
 
 .metric i {
   display: block;
-  border-top: 1px solid #777;
+  border-top: calc(1 * var(--w)) solid #777;
 }
 
 .metric-ascender { top: 7%; }
@@ -2340,10 +2356,10 @@ body {
   bottom: 2.5%;
   left: 50%;
   display: flex;
-  gap: 16px;
+  gap: calc(16 * var(--w));
   transform: translateX(-50%);
   color: #555;
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   letter-spacing: 0.02em;
   white-space: nowrap;
 }
@@ -2356,7 +2372,7 @@ body {
 .character-list {
   display: grid;
   grid-template-columns:
-    repeat(auto-fit, minmax(56px, 1fr));
+    repeat(auto-fit, minmax(calc(56 * var(--w)), 1fr));
   align-content: start;
   min-width: 0;
   border-left: var(--border);
@@ -2386,7 +2402,7 @@ body {
 
   place-items: center;
 
-  padding: 10px;
+  padding: calc(10 * var(--w));
 
   border-right:
     var(--border);
@@ -2398,7 +2414,7 @@ body {
      auto-fit, so a cell stays about this size at every width and the
      glyph inside it stays about this size too). */
   font-size:
-    clamp(24px, 1.9vw, 30px);
+    clamp(calc(24 * var(--w)), 1.9vw, calc(30 * var(--w)));
 
   line-height: 1;
 
@@ -2497,7 +2513,7 @@ main > section.specimen-image-section {
 
   width: 100%;
 
-  height: calc(100svh - 55px);
+  height: calc(100svh - calc(55 * var(--w)));
 
   object-fit: cover;
 
@@ -2532,10 +2548,10 @@ main > section.specimen-image-section {
 
   justify-content: center;
 
-  gap: 20px;
+  gap: calc(20 * var(--w));
 
   padding:
-    clamp(60px, 10vw, 140px)
+    clamp(calc(60 * var(--w)), 10vw, calc(140 * var(--w)))
     var(--page-margin);
 
   text-align: center;
@@ -2560,7 +2576,7 @@ main > section.specimen-image-section {
   margin: 0;
 
   font-size:
-    clamp(90px, 16vw, 300px);
+    clamp(calc(90 * var(--w)), 16vw, calc(300 * var(--w)));
 
   font-weight: 400;
 
@@ -2573,7 +2589,7 @@ main > section.specimen-image-section {
 
 .ligature-showcase-word-long {
   font-size:
-    clamp(49px, 7.9vw, 156px);
+    clamp(calc(49 * var(--w)), 7.9vw, calc(156 * var(--w)));
 }
 
 /* Cropped, zoomed-in treatment for the first ligature showcase -- the
@@ -2589,9 +2605,9 @@ main > section.specimen-image-section {
 
   height:
     calc(
-      2 * clamp(60px, 10vw, 140px) +
-      4 * 1.1 * clamp(49px, 7.9vw, 156px) +
-      3 * 20px
+      2 * clamp(calc(60 * var(--w)), 10vw, calc(140 * var(--w))) +
+      4 * 1.1 * clamp(calc(49 * var(--w)), 7.9vw, calc(156 * var(--w))) +
+      3 * calc(20 * var(--w))
     );
 
   background: #999999;
@@ -2604,9 +2620,9 @@ main > section.specimen-image-section {
 .ligature-showcase-5-line {
   height:
     calc(
-      2 * clamp(60px, 10vw, 140px) +
-      5 * 1.1 * clamp(49px, 7.9vw, 156px) +
-      4 * 20px
+      2 * clamp(calc(60 * var(--w)), 10vw, calc(140 * var(--w))) +
+      5 * 1.1 * clamp(calc(49 * var(--w)), 7.9vw, calc(156 * var(--w))) +
+      4 * calc(20 * var(--w))
     );
 
   /* .ligature-showcase's own border-bottom was stacking with
@@ -2639,7 +2655,7 @@ main > section.specimen-image-section {
 
 .ligature-showcase-zoomed .ligature-showcase-word-long {
   font-size:
-    clamp(88px, 14.3vw, 286px);
+    clamp(calc(88 * var(--w)), 14.3vw, calc(286 * var(--w)));
 
   /* Keep each phrase on the single line it had at normal size -- the
      bigger font would otherwise wrap it onto a second line. Let it
@@ -2670,8 +2686,8 @@ main > section.specimen-image-section {
 ------------------------------------------------------------------------- */
 
 .ligature-showcase-zoomed {
-  --focus-blur: 7px;
-  --focus-radius: 260px;
+  --focus-blur: calc(7 * var(--w));
+  --focus-radius: calc(260 * var(--w));
   --focus-core: 22%;
 }
 
@@ -2699,7 +2715,7 @@ main > section.specimen-image-section {
 
   background-image:
     url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='180' height='180'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
-  background-size: 180px 180px;
+  background-size: calc(180 * var(--w)) calc(180 * var(--w));
 
   opacity: 0.5;
 
@@ -2723,10 +2739,10 @@ main > section.specimen-image-section {
 
   justify-content: center;
 
-  gap: 20px;
+  gap: calc(20 * var(--w));
 
   padding:
-    clamp(60px, 10vw, 140px)
+    clamp(calc(60 * var(--w)), 10vw, calc(140 * var(--w)))
     var(--page-margin);
 
   opacity: 0;
@@ -2761,7 +2777,7 @@ main > section.specimen-image-section {
 
   margin: 0;
 
-  font-size: clamp(88px, 14.3vw, 286px);
+  font-size: clamp(calc(88 * var(--w)), 14.3vw, calc(286 * var(--w)));
 
   font-weight: 400;
 
@@ -2808,14 +2824,14 @@ main > section.specimen-image-section {
 ======================================== */
 
 .opentype-features {
-  padding-top: 16px;
+  padding-top: calc(16 * var(--w));
 }
 
 /* Same heading treatment as "Buy Formae" / "More typefaces" /
    "Licensing options" / "Character Set", including their 20px gap to
    whatever comes next. */
 .opentype-features-title {
-  margin: 0 var(--page-margin) 20px;
+  margin: 0 var(--page-margin) calc(20 * var(--w));
 
   font-family: var(--descriptive-font);
   font-size: var(--h1-size);
@@ -2842,7 +2858,7 @@ main > section.specimen-image-section {
   top: 0;
   bottom: 0;
 
-  width: 1px;
+  width: calc(1 * var(--w));
 
   background: rgba(0, 0, 0, 0.45);
 }
@@ -2853,10 +2869,10 @@ main > section.specimen-image-section {
   min-width: 0;
 
   padding:
-    36px
+    calc(36 * var(--w))
     var(--page-margin);
 
-  padding-top: 16px;
+  padding-top: calc(16 * var(--w));
 
   border-bottom:
     var(--border);
@@ -2867,11 +2883,11 @@ main > section.specimen-image-section {
 
   justify-content: space-between;
 
-  margin-bottom: 24px;
+  margin-bottom: calc(24 * var(--w));
 
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 
   letter-spacing: 0.02em;
 }
@@ -2881,9 +2897,9 @@ main > section.specimen-image-section {
 
   align-items: baseline;
 
-  gap: clamp(14px, 2.2cqw, 28px);
+  gap: clamp(calc(14 * var(--w)), 2.2cqw, calc(28 * var(--w)));
 
-  font-size: clamp(24px, 8cqw, 80px);
+  font-size: clamp(calc(24 * var(--w)), 8cqw, calc(80 * var(--w)));
 
   line-height: 1;
 
@@ -2924,7 +2940,7 @@ main > section.specimen-image-section {
    breathe" -- 10x the shared .text-sample-hero p size (same clamp
    shape, each number x10) and centered instead of left-aligned. */
 .text-sample-hero p.text-sample-hero-circled-large {
-  font-size: min(200cqmin, 2000px);
+  font-size: min(200cqmin, calc(2000 * var(--w)));
 
   text-align: center;
 }
@@ -2981,7 +2997,7 @@ main > section.specimen-image-section {
 
 .supported-languages {
   padding:
-    16px
+    calc(16 * var(--w))
     var(--page-margin)
     var(--section-space)
     var(--page-margin);
@@ -2991,12 +3007,12 @@ main > section.specimen-image-section {
 }
 
 .supported-languages p {
-  max-width: 1400px;
+  max-width: calc(1400 * var(--w));
 
   margin: 0;
 
   font-size:
-    clamp(32px, 5vw, 84px);
+    clamp(calc(32 * var(--w)), 5vw, calc(84 * var(--w)));
 
   line-height: 1;
 
@@ -3019,7 +3035,7 @@ main > section.specimen-image-section {
     1fr 1fr;
 
   min-height:
-    clamp(560px, 60vw, 1000px);
+    clamp(calc(560 * var(--w)), 60vw, calc(1000 * var(--w)));
 
   padding:
     var(--section-space)
@@ -3040,7 +3056,7 @@ main > section.specimen-image-section {
   top: 0;
   bottom: 0;
 
-  width: 1px;
+  width: calc(1 * var(--w));
 
   background: rgba(0, 0, 0, 0.45);
 }
@@ -3055,7 +3071,7 @@ main > section.specimen-image-section {
   text-align: center;
 
   font-size:
-    clamp(132px, 22vw, 440px);
+    clamp(calc(132 * var(--w)), 22vw, calc(440 * var(--w)));
 
   line-height: 0.7;
 
@@ -3078,10 +3094,10 @@ main > section.specimen-image-section {
 .about-copy p {
   margin: 0;
 
-  max-width: 620px;
+  max-width: calc(620 * var(--w));
 
   font-size:
-    clamp(24px, 3.2vw, 60px);
+    clamp(calc(24 * var(--w)), 3.2vw, calc(60 * var(--w)));
 
   line-height: 1.3;
 
@@ -3093,7 +3109,7 @@ main > section.specimen-image-section {
   /* The one gap value between the boxes -- side by side on desktop,
      stacked on narrow screens. Also reused below for the spacing
      between back-to-back About sections, so the two always match. */
-  --about-box-gap: clamp(16px, 2vw, 32px);
+  --about-box-gap: clamp(calc(16 * var(--w)), 2vw, calc(32 * var(--w)));
 
   gap: var(--about-box-gap);
 
@@ -3120,7 +3136,7 @@ main > section.specimen-image-section {
 
   color: var(--background);
 
-  border-radius: clamp(16px, 2vw, 32px);
+  border-radius: clamp(calc(16 * var(--w)), 2vw, calc(32 * var(--w)));
 }
 
 .about-typeface-inverse .about-title {
@@ -3165,32 +3181,32 @@ main > section.specimen-image-section {
 ======================================== */
 
 .buy-font {
-  padding: clamp(48px, 8vw, 96px) var(--page-margin);
+  padding: clamp(calc(48 * var(--w)), 8vw, calc(96 * var(--w))) var(--page-margin);
 
   border-bottom: var(--border);
 }
 
 .buy-font-title {
   /* Same heading-to-next-row gap as "Licensing options" below. */
-  margin: 0 0 20px;
+  margin: 0 0 calc(20 * var(--w));
 
   font-family: var(--descriptive-font);
   font-size: var(--h1-size);
 }
 
 .buy-font-license {
-  max-width: 560px;
+  max-width: calc(560 * var(--w));
 
-  margin-bottom: 32px;
+  margin-bottom: calc(32 * var(--w));
 }
 
 .buy-font-license span {
   display: inline-block;
 
-  margin-bottom: 8px;
+  margin-bottom: calc(8 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   font-weight: 700;
   text-transform: uppercase;
   letter-spacing: 0.04em;
@@ -3201,7 +3217,7 @@ main > section.specimen-image-section {
 
   color: #555;
   font-family: var(--descriptive-font);
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   line-height: 1.5;
 }
 
@@ -3213,9 +3229,9 @@ main > section.specimen-image-section {
   display: grid;
   grid-template-columns: 1fr auto auto;
   align-items: center;
-  gap: 24px;
+  gap: calc(24 * var(--w));
 
-  padding: 14px 0;
+  padding: calc(14 * var(--w)) 0;
 
   border-bottom: var(--border);
 }
@@ -3226,12 +3242,12 @@ main > section.specimen-image-section {
 
 .buy-font-name {
   font-family: var(--descriptive-font);
-  font-size: 15px;
+  font-size: calc(15 * var(--w));
 }
 
 .buy-font-price {
   font-family: var(--descriptive-font);
-  font-size: 14px;
+  font-size: calc(14 * var(--w));
   color: #555;
 }
 
@@ -3239,13 +3255,13 @@ main > section.specimen-image-section {
   color: var(--foreground);
   text-decoration: none;
 
-  padding: 6px 14px;
+  padding: calc(6 * var(--w)) calc(14 * var(--w));
 
-  border: 1px solid rgba(0, 0, 0, 0.3);
-  border-radius: 999px;
+  border: calc(1 * var(--w)) solid rgba(0, 0, 0, 0.3);
+  border-radius: calc(999 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
 
   transition: background-color 150ms ease, color 150ms ease;
 }
@@ -3273,10 +3289,10 @@ main > section.specimen-image-section {
   display: flex;
   justify-content: space-between;
 
-  margin-top: 16px;
+  margin-top: calc(16 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   color: #777;
 }
 
@@ -3285,34 +3301,34 @@ main > section.specimen-image-section {
 }
 
 .buy-font-licensing {
-  margin-top: 56px;
+  margin-top: calc(56 * var(--w));
 
-  padding-top: 32px;
+  padding-top: calc(32 * var(--w));
 
   border-top: var(--border);
 }
 
 /* Matches the "Buy Formae" / "More typefaces" heading treatment. */
 .buy-font-licensing h3 {
-  margin: 0 0 20px;
+  margin: 0 0 calc(20 * var(--w));
 
   font-family: var(--descriptive-font);
   font-size: var(--h1-size);
 }
 
 .buy-font-license-tier {
-  max-width: 560px;
+  max-width: calc(560 * var(--w));
 
-  margin-bottom: 20px;
+  margin-bottom: calc(20 * var(--w));
 }
 
 .buy-font-license-tier span {
   display: block;
 
-  margin-bottom: 4px;
+  margin-bottom: calc(4 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   font-weight: 700;
 }
 
@@ -3321,18 +3337,18 @@ main > section.specimen-image-section {
 
   color: #555;
   font-family: var(--descriptive-font);
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   line-height: 1.5;
 }
 
 .buy-font-licensing-footnote {
-  max-width: 560px;
+  max-width: calc(560 * var(--w));
 
-  margin: 8px 0 0;
+  margin: calc(8 * var(--w)) 0 0;
 
   color: #777;
   font-family: var(--descriptive-font);
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
   line-height: 1.5;
 }
 
@@ -3342,14 +3358,14 @@ main > section.specimen-image-section {
 ======================================== */
 
 .more-fonts {
-  padding: clamp(48px, 8vw, 96px) var(--page-margin);
+  padding: clamp(calc(48 * var(--w)), 8vw, calc(96 * var(--w))) var(--page-margin);
 
   border-bottom: var(--border);
 }
 
 .more-fonts-title {
   /* Same heading-to-next-row gap as "Licensing options". */
-  margin: 0 0 20px;
+  margin: 0 0 calc(20 * var(--w));
 
   font-family: var(--descriptive-font);
   font-size: var(--h1-size);
@@ -3359,16 +3375,16 @@ main > section.specimen-image-section {
   display: grid;
 
   grid-template-columns: repeat(4, 1fr);
-  gap: 16px;
+  gap: calc(16 * var(--w));
 }
 
 .more-fonts-box {
   position: relative;
 
   min-width: 0;
-  min-height: clamp(300px, 30vw, 480px);
+  min-height: clamp(calc(300 * var(--w)), 30vw, calc(480 * var(--w)));
 
-  padding: clamp(18px, 2vw, 32px);
+  padding: clamp(calc(18 * var(--w)), 2vw, calc(32 * var(--w)));
 
   display: flex;
   flex-direction: column;
@@ -3379,7 +3395,7 @@ main > section.specimen-image-section {
 
   background: #e9e9e4;
 
-  border-radius: clamp(16px, 1.6vw, 28px);
+  border-radius: clamp(calc(16 * var(--w)), 1.6vw, calc(28 * var(--w)));
 
   overflow: hidden;
 
@@ -3394,23 +3410,23 @@ main > section.specimen-image-section {
 }
 
 .more-fonts-name {
-  margin-bottom: 4px;
+  margin-bottom: calc(4 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 16px;
+  font-size: calc(16 * var(--w));
   font-weight: 600;
 }
 
 .more-fonts-details {
   font-family: var(--descriptive-font);
   color: #555;
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 .more-fonts-aa {
   margin-top: auto;
 
-  font-size: clamp(70px, 8vw, 140px);
+  font-size: clamp(calc(70 * var(--w)), 8vw, calc(140 * var(--w)));
   font-weight: 600;
   line-height: 0.7;
   letter-spacing: -0.055em;
@@ -3435,20 +3451,20 @@ main > section.specimen-image-section {
 
 .more-fonts-status {
   position: absolute;
-  top: 14px;
-  right: 14px;
+  top: calc(14 * var(--w));
+  right: calc(14 * var(--w));
 
-  padding: 5px 10px;
+  padding: calc(5 * var(--w)) calc(10 * var(--w));
 
   color: var(--foreground);
 
   background: #fbb040;
 
-  border: 1px solid #fbb040;
-  border-radius: 999px;
+  border: calc(1 * var(--w)) solid #fbb040;
+  border-radius: calc(999 * var(--w));
 
   font-family: var(--descriptive-font);
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 @media (max-width: 900px) {
@@ -3494,7 +3510,7 @@ main > section.specimen-image-section {
 .cta span {
   color: #555;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 }
 
 
@@ -3504,7 +3520,7 @@ main > section.specimen-image-section {
   text-decoration: none;
 
   font-size:
-    clamp(72px, 12vw, 220px);
+    clamp(calc(72 * var(--w)), 12vw, calc(220 * var(--w)));
 
   line-height: 0.84;
 
@@ -3772,7 +3788,7 @@ canvas {
 }
 
 .nav a {
-  min-height: 44px;
+  min-height: calc(44 * var(--w));
   display: inline-flex;
   align-items: center;
 }
@@ -3953,19 +3969,19 @@ canvas {
   top: 0;
   z-index: 10;
   min-height: auto;
-  padding: 18px var(--page-margin);
+  padding: calc(18 * var(--w)) var(--page-margin);
   background: rgba(245, 245, 240, 0.94);
-  backdrop-filter: blur(10px);
+  backdrop-filter: blur(calc(10 * var(--w)));
 }
 
 main > section {
-  scroll-margin-top: 54px;
+  scroll-margin-top: calc(54 * var(--w));
 }
 
 @media (min-width: 901px) {
   html {
     scrollbar-gutter: stable;
-    scroll-padding-top: 54px;
+    scroll-padding-top: calc(54 * var(--w));
   }
 
   body {
@@ -4418,13 +4434,13 @@ main > section {
   justify-content: space-between;
   align-items: flex-start;
 
-  gap: 24px;
+  gap: calc(24 * var(--w));
 
-  padding: 64px var(--page-margin) 40px;
+  padding: calc(64 * var(--w)) var(--page-margin) calc(40 * var(--w));
 }
 
 .footer-newsletter h2 {
-  max-width: 480px;
+  max-width: calc(480 * var(--w));
   margin: 0;
 
   font-size: var(--h1-size);
@@ -4439,9 +4455,9 @@ main > section {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: 14px;
+  gap: calc(14 * var(--w));
 
-  max-width: 280px;
+  max-width: calc(280 * var(--w));
 }
 
 .footer-newsletter-signup p {
@@ -4449,21 +4465,21 @@ main > section {
 
   color: rgba(245, 245, 240, 0.65);
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   line-height: 1.5;
 }
 
 .footer-newsletter-button {
-  padding: 10px 18px;
+  padding: calc(10 * var(--w)) calc(18 * var(--w));
 
   color: var(--foreground);
   text-decoration: none;
 
   background: var(--background);
 
-  border-radius: 100px;
+  border-radius: calc(100 * var(--w));
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   font-weight: 500;
 
   transition: opacity 150ms ease;
@@ -4476,7 +4492,7 @@ main > section {
 .footer-divider {
   margin: 0 var(--page-margin);
 
-  border-top: 1px dotted rgba(245, 245, 240, 0.3);
+  border-top: calc(1 * var(--w)) dotted rgba(245, 245, 240, 0.3);
 }
 
 .footer-columns {
@@ -4484,18 +4500,18 @@ main > section {
 
   grid-template-columns: 1.4fr 1fr 1fr;
 
-  gap: 24px;
+  gap: calc(24 * var(--w));
 
-  padding: 40px var(--page-margin);
+  padding: calc(40 * var(--w)) var(--page-margin);
 }
 
 .footer-tagline {
-  max-width: 320px;
+  max-width: calc(320 * var(--w));
   margin: 0;
 
   color: rgba(245, 245, 240, 0.65);
 
-  font-size: 14px;
+  font-size: calc(14 * var(--w));
   line-height: 1.5;
 }
 
@@ -4505,14 +4521,14 @@ main > section {
   flex-direction: column;
   align-items: flex-start;
 
-  gap: 10px;
+  gap: calc(10 * var(--w));
 }
 
 .footer-sitemap a {
   color: inherit;
   text-decoration: none;
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
 }
 
 .footer-sitemap a:hover {
@@ -4522,7 +4538,7 @@ main > section {
 .footer-copyright {
   color: rgba(245, 245, 240, 0.65);
 
-  font-size: 13px;
+  font-size: calc(13 * var(--w));
   text-align: right;
 }
 
@@ -4551,7 +4567,7 @@ main > section {
 
   overflow: hidden;
 
-  font-size: 12px;
+  font-size: calc(12 * var(--w));
 
   cursor: crosshair;
 
