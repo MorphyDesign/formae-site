@@ -4708,3 +4708,8 @@ main > section {
     overflow: hidden;
   }
 }
+
+/* FLAME: the M sits closer to the LA ligature */
+.flame-m {
+  margin-left: -0.08em;
+}
