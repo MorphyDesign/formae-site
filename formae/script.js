@@ -1,3 +1,24 @@
+/* One-time migration: the Illuminated row was added under FLAME (display position 16 of the sections), which shifted every later
+   section by one. Saved Design Mode paths ("section:nth-child(N)") still use the old numbering -- renumber them in place once. */
+(function () {
+  try {
+    if (localStorage.getItem("formae-nth-v1")) return;
+    const raw = localStorage.getItem("formae-design-mode-overrides");
+    if (raw) {
+      const saved = JSON.parse(raw);
+      const fixed = {};
+      Object.keys(saved).forEach(function (key) {
+        fixed[key.replace(/section:nth-child\((\d+)\)/g, function (m, n) {
+          n = Number(n);
+          return "section:nth-child(" + (n > 16 ? n + 1 : n) + ")";
+        })] = saved[key];
+      });
+      localStorage.setItem("formae-design-mode-overrides", JSON.stringify(fixed));
+    }
+    localStorage.setItem("formae-nth-v1", "1");
+  } catch (e) {}
+})();
+
 /* ========================================
    MORPHYFOUNDRY TYPE TESTERS
 ======================================== */
