@@ -1501,6 +1501,42 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
 
   if (!pairs.length) return;
 
+  // The specimen rows' label bar carries three things, like a type specimen sheet: left the weight / size ("Bold / 309"),
+  // in the middle the name and kind of the typeface, right the tracking and leading the word is really set with.
+  // Tracking is in thousandths of an em, leading in percent of the font size -- both read back from the rendered word,
+  // so they follow the page as it scales.
+  const SPECIMEN_FAMILY = "Formae · Display serif";
+
+  function decorateSpecimenLabel(pair) {
+    const cs = window.getComputedStyle(pair.text);
+    const fontSize = parseFloat(cs.fontSize);
+    const spacing = cs.letterSpacing === "normal" ? 0 : parseFloat(cs.letterSpacing);
+    const lineHeight = cs.lineHeight === "normal" ? fontSize * 1.2 : parseFloat(cs.lineHeight);
+    const tracking = Math.round((spacing / fontSize) * 1000);
+    const leading = Math.round((lineHeight / fontSize) * 100);
+    const sign = tracking > 0 ? "+" : tracking < 0 ? "\u2212" : "";
+
+    const size = document.createElement("span");
+    size.className = "specimen-label-size";
+    size.textContent = pair.label.textContent;
+
+    const name = document.createElement("span");
+    name.className = "specimen-label-name";
+    name.textContent = SPECIMEN_FAMILY;
+
+    const metrics = document.createElement("span");
+    metrics.className = "specimen-label-metrics";
+    [["Tracking ", sign + Math.abs(tracking) + " / "], ["Leading ", leading + "%"]].forEach(function (part) {
+      const word = document.createElement("span");
+      word.className = "specimen-label-word";
+      word.textContent = part[0];
+      metrics.appendChild(word);
+      metrics.appendChild(document.createTextNode(part[1]));
+    });
+
+    pair.label.replaceChildren(size, name, metrics);
+  }
+
   function updateLabels() {
     pairs.forEach(function (pair) {
       const size = Math.round(
@@ -1512,6 +1548,7 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
         prefix && suffix
           ? prefix + " / " + size + " / " + suffix
           : "Regular / " + size;
+      if (pair.label.classList.contains("specimen-label")) decorateSpecimenLabel(pair);
     });
   }
 
@@ -2573,4 +2610,67 @@ Array.from(document.querySelectorAll(".ligature-showcase-zoomed")).forEach(
       }
     });
   });
+})();
+
+
+/* ========================================
+   TWO-LINE SPECIMEN ROWS
+   A specimen row is a box with its word centred in it, so a word set on two
+   lines (Gold & / Vellum) or a very short, very large one would eat
+   the row's padding. Such a row gets
+   the same padding above and below as the one-line rows around it (measured
+   from them, so it holds at every width).
+======================================== */
+(function () {
+  const rows = Array.from(document.querySelectorAll(".specimen"));
+
+  function shown(row) {
+    return !row.hidden && row.offsetHeight > 0;
+  }
+
+  // the word's own box: its lines x line-height (a phone gives the text a
+  // fixed height, so never less than what is actually there)
+  function boxHeight(text) {
+    const lines = text.querySelectorAll("br").length + 1;
+    const lineHeight = parseFloat(getComputedStyle(text).lineHeight) || 0;
+    return Math.max(text.offsetHeight, lines * lineHeight);
+  }
+
+  // a row whose word is on two lines, or so short that it is fitted very large
+  function special(row) {
+    return !!row.querySelector(".specimen-text br, .specimen-text[data-keep-padding]");
+  }
+
+  function balanceTwoLineRows() {
+    const single = rows.filter(function (row) {
+      return shown(row) && !special(row);
+    });
+    const multi = rows.filter(function (row) {
+      return shown(row) && special(row);
+    });
+    if (!single.length || !multi.length) return;
+
+    const pads = single.map(function (row) {
+      return (row.offsetHeight - boxHeight(row.querySelector(".specimen-text"))) / 2;
+    });
+    const pad = pads.reduce(function (a, b) { return a + b; }, 0) / pads.length;
+
+    multi.forEach(function (row) {
+      const text = row.querySelector(".specimen-text");
+      row.style.minHeight = "";
+      row.style.minHeight = Math.round(boxHeight(text) + 2 * pad) + "px";
+    });
+  }
+
+  function later() {
+    requestAnimationFrame(function () {
+      requestAnimationFrame(balanceTwoLineRows);
+    });
+  }
+
+  later();
+  window.addEventListener("resize", later);
+  if (document.fonts && document.fonts.ready) {
+    document.fonts.ready.then(later);
+  }
 })();
