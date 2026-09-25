@@ -45,7 +45,7 @@
    were dropped); the latest export lives in formae/fonts/. */
 @font-face {
   font-family: "Formae";
-  src: url("fonts/Formae-Regular.woff2?v=26") format("woff2");
+  src: url("fonts/Formae-Medium.woff2?v=27") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
@@ -1772,7 +1772,7 @@ body {
      what the line actually fits and broke the forced 2-line break
      (each half wrapped again). 8.5cqw is derived from the real glyph
      advance widths of "season it was born in." (the longer half) via
-     fontTools against Formae-Regular, with a safety margin for
+     fontTools against Formae, with a safety margin for
      kerning/rounding -- it guarantees fit at any container width,
      which is why no separate mobile/tablet override is needed here. */
   font-size:
