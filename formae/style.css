@@ -45,7 +45,7 @@
    were dropped); the latest export lives in formae/fonts/. */
 @font-face {
   font-family: "Formae";
-  src: url("fonts/Formae-Regular.woff2?v=31") format("woff2");
+  src: url("fonts/Formae-Regular.woff2?v=32") format("woff2");
   font-style: normal;
   font-weight: 400;
   font-display: swap;
