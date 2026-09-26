@@ -4598,6 +4598,15 @@ main > section {
   text-align: right;
 }
 
+/* the live Weight / Slant readout of the interactive wordmark (script.js writes into it) */
+.footer-axis-value {
+  display: block;
+
+  margin-top: calc(10 * var(--w));
+
+  font-variant-numeric: tabular-nums;
+}
+
 @media (max-width: 650px) {
   .footer-columns {
     grid-template-columns: 1fr;
