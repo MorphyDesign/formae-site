@@ -230,7 +230,7 @@ body {
   padding: calc(14 * var(--w)) calc(16 * var(--w));
 
   background: #fbb040;
-  color: #141413;
+  color: #000000;
 
   border-radius: calc(14 * var(--w));
 
@@ -4357,7 +4357,7 @@ main > section {
   margin: 12px 0 8px;
   padding-top: 10px;
 
-  color: rgba(17, 17, 17, 0.55);
+  color: rgba(0, 0, 0, 0.55);
   font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
 
   border-top: 1px dashed rgba(0, 0, 0, 0.15);
@@ -4372,7 +4372,7 @@ main > section {
 .design-mode-group-label {
   margin-bottom: 4px;
 
-  color: rgba(17, 17, 17, 0.55);
+  color: rgba(0, 0, 0, 0.55);
 }
 
 .design-mode-row {
@@ -4393,7 +4393,7 @@ main > section {
 }
 
 .design-mode-field span {
-  color: rgba(17, 17, 17, 0.45);
+  color: rgba(0, 0, 0, 0.45);
 }
 
 .design-mode-field input {
@@ -4436,7 +4436,7 @@ main > section {
 .design-mode-align-btn {
   padding: 5px 4px;
 
-  color: rgba(17, 17, 17, 0.65);
+  color: rgba(0, 0, 0, 0.65);
 
   font-size: 11px;
   font-family: inherit;
@@ -4712,4 +4712,11 @@ main > section {
 /* FLAME: the M sits closer to the LA ligature */
 .flame-m {
   margin-left: -0.08em;
+}
+
+/* form controls: the browser's own text colour for inputs is #101010 -- keep to the page's one black */
+input,
+textarea,
+select {
+  color: #000000;
 }
